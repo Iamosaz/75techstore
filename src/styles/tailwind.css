@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* Tailwind CSS v4 Custom Theme
+   75 Tech Store – brand palette from logo */
+
+@theme {
+  /* Brand colors from your logo */
+  --color-brand-blue:  #00A7E1;   /* Cyan‑blue (the “7”)  */
+  --color-brand-red:   #E02525;   /* Bold red (the “5”)   */
+  --color-brand-dark:  #0A0A0A;   /* Near‑black background */
+  --color-orange:      #FA6E00;   /* Orange accent/gradient */
+ --color-brand-blue-50: #e7f1fb;  
+ --color-brand-blue-100: #c2dcf6;
+ --color-brand-blue-500: #0071ce;
+--color-accent-yellow-100: #fff7d6;
+ --color-accent-yellow-400: #ffe255;
+ --color-accent-yellow-500: #ffc220;
+ --color-gray:  #808080;
+
+
+  /* Neutral grayscale */
+  --color-gray-50:   #f9fafb;
+  --color-gray-100:  #f3f4f6;
+  --color-gray-300:  #d1d5db;
+  --color-gray-600:  #4b5563;
+  --color-gray-800:  #1f2937;
+
+  /* Status colors (optional) */
+  --color-success: #10b981;
+  --color-danger:  #ef4444;
+  --color-info:    #3b82f6;
+
+  /* Font setup */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Border radius tokens */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+}
+
+/* Custom utility shorthands */
+
+@utility btn {
+  @apply px-4 py-2 font-semibold rounded-md transition duration-200;
+}
+
+/* Primary button → your cyan blue */
+@utility btn-primary {
+  @apply btn bg-brand-blue text-white hover:bg-brand-red;
+}
+
+/* Accent / highlight button → your orange */
+@utility btn-accent {
+  @apply btn bg-orange text-white hover:bg-brand-blue;
+}
+
+/* Outline variant → blue border, switches on hover */
+@utility btn-outline {
+  @apply btn border border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white;
+}
