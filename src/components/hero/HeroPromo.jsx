@@ -1,6 +1,6 @@
 // src/components/hero/HeroPromo.jsx
 import React from "react";
-import banner from "../../assets/iphone-17.png"
+import banner from "../../assets/iPhone-17.png"
 
 
 const HeroPromo = () => {
