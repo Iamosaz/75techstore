@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 
 // Pages
 import Home from "./pages/Home";
+import DealDetails from "./pages/DealDetails";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+           <Route path="/deals/:id" element={<DealDetails />} />
           </Routes>
         </main>
 

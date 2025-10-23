@@ -19,13 +19,13 @@ const HeroPromo = () => {
           Mega Good Deals 🎁
         </h2>
 
-        <p className="mt-8 max-w-xl text-lg text-white/90">
+        <p className="mt-4 max-w-xl text-lg text-white/90">
           Save up to 15% on quality worthy gadgets - Laptops, Phones, Accessories & more.
         </p>
 
         <a
           href="/shop"
-          className="btn-accent mt-10 mb-20 hover:scale-105 transition-transform duration-300"
+           className="btn-accent mt-4 hover:scale-105 transition-transform duration-300"s
         >
           Explore Offers
         </a>

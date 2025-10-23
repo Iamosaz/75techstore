@@ -2,12 +2,14 @@
 import React from "react";
 import { FaLaptop, FaTools, FaHome, FaRobot } from "react-icons/fa";
 import HeroCarousel from "../components/hero/HeroCarousel";  // rotating hero section //
+import SplashDeals from "../components/deals/SplashDeals";
 
 const Home = () => {
   return (
     <main className="font-sans text-gray-800">
       {/* ───────────── HERO SECTION ───────────── */}
       <HeroCarousel />
+      <SplashDeals />
 
       {/* ───────────── QUICK SERVICE CARDS ───────────── */}
       <section className="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

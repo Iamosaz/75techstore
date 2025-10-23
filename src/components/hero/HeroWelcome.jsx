@@ -39,7 +39,7 @@ const HeroWelcome = () => {
             transition={{ delay: 0.6, duration: 0.8 }}
           >
             Buy, repair, and upgrade your tech with trusted quality and
-            lightning‑fast service.
+            lightning - fast service.
           </motion.p>
 
           <motion.div

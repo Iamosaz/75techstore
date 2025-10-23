@@ -23,7 +23,7 @@ const Brandnewgadget = () => {
         </p>
         <a
           href="/shop/all"
-          className="btn-accent mt-10 hover:scale-105 transition-transform duration-300"
+          className="btn-accent mt-4 hover:scale-105 transition-transform duration-300"
         >
           Shop Now
         </a>
