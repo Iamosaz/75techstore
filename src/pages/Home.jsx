@@ -3,34 +3,42 @@ import React from "react";
 import { FaLaptop, FaTools, FaHome, FaRobot } from "react-icons/fa";
 import HeroCarousel from "../components/hero/HeroCarousel";  // rotating hero section //
 import SplashDeals from "../components/deals/SplashDeals";
+import { Link } from "react-router-dom";
+import DigitalServicePreview from "../components/hero/DigitalServicePreview";
+import TechCard75 from "../components/hero/TechCard75";
+import OurMembers from "../components/hero/OurMembers";
 
 const Home = () => {
   return (
     <main className="font-sans text-gray-800">
       {/* ───────────── HERO SECTION ───────────── */}
       <HeroCarousel />
-      <SplashDeals />
-
+    
       {/* ───────────── QUICK SERVICE CARDS ───────────── */}
       <section className="max-w-6xl mx-auto py-16 px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { icon: <FaLaptop size={28} />, label: "Buy Gadgets" },
-          { icon: <FaTools size={28} />, label: "Repairs" },
-          { icon: <FaHome size={28} />, label: "Request Engineer" },
-          { icon: <FaRobot size={28} />, label: "Digital Services" },
+          { icon: <FaLaptop size={28} />, label: "Buy Gadgets", path:"/shop" },
+          { icon: <FaTools size={28} />, label: "Repairs", Path:"/repairs" },
+          { icon: <FaHome size={28} />, label: "Request Engineer", path:"/requestengineer"},
+          { icon: <FaRobot size={28} />, label: "Digital Services", path:"/digital-services"},
         ].map((item, i) => (
-          <div
+          <Link
             key={i}
+            to={item.path}
             className="bg-white border rounded-lg p-8 text-center shadow-sm hover:shadow-md transition"
           >
             <div className="text-brand-blue flex justify-center mb-3">
               {item.icon}
             </div>
             <p className="font-semibold">{item.label}</p>
-          </div>
+          </Link>
         ))}
       </section>
-
+      {/* Splash deals */}
+         <SplashDeals />
+         {/* <DigitalServicePreview /> */}
+         <TechCard75 />
+         <OurMembers />
       {/* ───────────── WHY CHOOSE US ───────────── */}
       <section className="max-w-5xl mx-auto py-16 px-6 text-center">
         <h2 className="text-3xl font-bold text-brand-blue mb-10">
@@ -59,7 +67,7 @@ const Home = () => {
       </section>
 
       {/* ───────────── NEWSLETTER ───────────── */}
-      <section className=" bg-blue-400 text-white py-14 text-center px-6">
+      <section className="bg-gradient-to-br from brand-dark via-gray-700 to-brand-blue-400 text-white py-14 text-center px-6">
         <h2 className="text-3xl font-bold mb-3">Stay Up to Date</h2>
         <p className="text-white/80 mb-6">
           Get product deals, tech tips, and early access to our sales.
