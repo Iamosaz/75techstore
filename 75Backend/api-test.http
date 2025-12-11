@@ -1,0 +1,155 @@
+### Register a User
+POST http://localhost:5000/api/users/register
+Content-Type: application/json
+
+{
+  "name": "First Admin",
+  "email": "admin@example.com",
+  "password": "admin123",
+  "role": "admin"
+}
+
+
+
+### Login User
+POST http://localhost:5000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+
+### Access protected profile route
+GET http://localhost:5000/api/users/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjE5MCwiZXhwIjoxNzY1MjcyMzcwfQ.mht1BJh0dplynPERAbfkGz7kKyuwQc0ewVSM8p7RoZA  
+
+### Access admin-only route
+GET http://localhost:5000/api/users/admin-secret
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjE5MCwiZXhwIjoxNzY1MjcyMzcwfQ.mht1BJh0dplynPERAbfkGz7kKyuwQc0ewVSM8p7RoZA
+
+
+
+
+
+
+
+// Products section
+
+
+
+### Get all products (public)
+GET http://localhost:5000/api/products
+
+### Admin create a product
+POST http://localhost:5000/api/products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjE5MCwiZXhwIjoxNzY1MjcyMzcwfQ.mht1BJh0dplynPERAbfkGz7kKyuwQc0ewVSM8p7RoZA
+Content-Type: application/json
+
+{
+  "name": "Laptop Pro 15",
+  "description": "High performance laptop for professionals",
+  "price": 1200,
+  "quantity": 5,
+  "category": "Electronics",
+  "imageUrl": "https://example.com/laptop.jpg"
+}
+
+### Get 1 product
+GET http://localhost:5000/api/products/{{productId}}
+
+### Update product (admin)
+PUT http://localhost:5000/api/products/{{productId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjE5MCwiZXhwIjoxNzY1MjcyMzcwfQ.mht1BJh0dplynPERAbfkGz7kKyuwQc0ewVSM8p7RoZA
+Content-Type: application/json
+
+{
+  "price": 1400
+}
+
+### Delete product (admin)
+DELETE http://localhost:5000/api/products/{{productId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjE5MCwiZXhwIjoxNzY1MjcyMzcwfQ.mht1BJh0dplynPERAbfkGz7kKyuwQc0ewVSM8p7RoZA
+
+
+
+
+### Create order (logged‑in user)
+POST http://localhost:5000/api/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjU1MywiZXhwIjoxNzY1MjcyNzMzfQ.N4gmlRFENKgzY4EXkfC6hbFXNtEw-WKPp4OAFpyq3DQ
+Content-Type: application/json
+
+{
+  "orderItems": [
+    { "product": "691e4a7df2e7013b15e382b7", "quantity": 2, "price": 1200 }
+  ],
+  "shippingAddress": {
+    "address": "123 Market",
+    "city": "Lagos",
+    "postalCode": "100001",
+    "country": "Nigeria"
+  },
+  "paymentMethod": "Card",
+  "totalPrice": 2400
+}
+
+### Get all orders (admin)
+GET http://localhost:5000/api/orders
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjE5MCwiZXhwIjoxNzY1MjcyMzcwfQ.mht1BJh0dplynPERAbfkGz7kKyuwQc0ewVSM8p7RoZA
+
+### Get single order
+GET http://localhost:5000/api/orders/{{orderId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjU1MywiZXhwIjoxNzY1MjcyNzMzfQ.N4gmlRFENKgzY4EXkfC6hbFXNtEw-WKPp4OAFpyq3DQ
+
+### Update order status
+PUT http://localhost:5000/api/orders/{{orderId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjU1MywiZXhwIjoxNzY1MjcyNzMzfQ.N4gmlRFENKgzY4EXkfC6hbFXNtEw-WKPp4OAFpyq3DQ
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
+
+### Delete order
+DELETE http://localhost:5000/api/orders/{{orderId}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3MjU1MywiZXhwIjoxNzY1MjcyNzMzfQ.N4gmlRFENKgzY4EXkfC6hbFXNtEw-WKPp4OAFpyq3DQ
+
+
+
+
+
+
+
+### Get paginated product list (default page 1)
+GET http://localhost:5000/api/products
+
+### Get page 2 with 5 items limit
+GET http://localhost:5000/api/products?page=2&limit=5
+
+### Search product by keyword
+GET http://localhost:5000/api/products?keyword=Laptop
+
+### Filter by category Electronics
+GET http://localhost:5000/api/products?category=Electronics
+
+### Filter by price range (500–1500)
+GET http://localhost:5000/api/products?minPrice=500&maxPrice=1500
+
+### Combine everything
+GET http://localhost:5000/api/products?keyword=Laptop&category=Electronics&page=1&limit=5
+
+
+
+
+
+### Upload a product image
+POST http://localhost:5000/api/upload
+Authorization: BearereyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWNkYzNmYWFkYTE5Y2E3YTM3ZmY4NCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2NTI3Njg3OSwiZXhwIjoxNzY1Mjc3MDU5fQ.1dIxqcux_WyZumOXhmYONOWCn5zWpjd_ujEiEzWmd3o
+Content-Type: multipart/form-data; boundary=MyBoundary
+--MyBoundary
+Content-Disposition: form-data; name="image"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/sample.jpg
+--MyBoundary--

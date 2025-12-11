@@ -1,0 +1,38 @@
+# Dependency folders
+node_modules/
+75Techstore/node_modules/
+75Backend/node_modules/
+
+# Environment files (never push secrets)
+75Techstore/.env
+75Backend/.env
+.env
+
+# Build outputs
+75Techstore/dist/
+75Techstore/build/
+75Backend/uploads/
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+
+
+
+# # Dependency folders
+# **/node_modules/
+
+# # Environment files
+# **/.env
+
+# # Build outputs
+# 75Techstore/dist/
+# 75Techstore/build/
+# 75backend/uploads/
+
+# # OS / editor files
+# .DS_Store
+# Thumbs.db
+# .vscode/
