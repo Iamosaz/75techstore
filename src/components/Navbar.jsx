@@ -17,7 +17,7 @@ const Navbar = () => {
            <div className='flex-grow max-w-lg hidden md:flex items-center bg-white rounded-md overflow-x-hidden text-gray-700'>
               <input 
                 type='text'
-                placeholder='Search products, categories or services and many more.......'
+                placeholder='Search products, categories, services on 75techstore'
               className='flex-grow px-6 py-3 text-justify focus:outline-none'/>
               <button className='bg-accent-yellow-500 text-gray-800 px-4 py-2 font-semibold hover:bg-accent-yellow-400 transition rounded-xl'>
                  <FaSearch />

@@ -9,7 +9,7 @@ import TechCard75 from "../components/hero/TechCard75";
 import OurMembers from "../components/hero/OurMembers";
 
 const Home = () => {
-  return (
+  return ( 
     <main className="font-sans text-gray-800">
       {/* ───────────── HERO SECTION ───────────── */}
       <HeroCarousel />

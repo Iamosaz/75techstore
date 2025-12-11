@@ -1,5 +1,6 @@
 // src/components/deals/SplashDeals.jsx
 import React from "react";
+
 import DealCard from "./DealCard";
 import iphone from "../../assets/17promax.png";
 import laptop from "../../assets/macbook-pro.png";
@@ -17,7 +18,7 @@ const mockDeals = [
 ];
 const SplashDeals = () => {
   return (
-   <section className="max-w-7xl mx-auto py-16 px-2">
+   <section className="max-w-7xl mx-auto py-16 px-2 bg-transparent">
       <h2 className="text-3xl font-bold text-center text-brand-blue mb-10">
         Splash Deals
       </h2>
