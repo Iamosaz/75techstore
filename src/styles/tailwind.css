@@ -18,6 +18,7 @@
  --color-gray:  #808080;
 
 
+
   /* Neutral grayscale */
   --color-gray-50:   #f9fafb;
   --color-gray-100:  #f3f4f6;
@@ -58,4 +59,16 @@
 /* Outline variant → blue border, switches on hover */
 @utility btn-outline {
   @apply btn border border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white;
+  
+}
+
+/* btn category */
+@utility btn-category {
+   @apply btn border border-white text-white hover:bg-white hover:text-brand-dark;
+  
+}
+
+@utility btn-category1 {
+  @apply btn border border-brand-blue text-white hover:bg-brand-blue hover:text-white;
+  
 }

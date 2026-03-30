@@ -5,6 +5,8 @@ import HeroWelcome from "./HeroWelcome";
 import HeroHolidayPromo from "./HeroPromo";
 import Brandnewgadget from "./Brandnewgadget";
 
+// Hero Carousel that handles the header sliding banner
+
 export default function HeroCarousel() {
   const slides = [
     { id: 0, component: <HeroWelcome /> },

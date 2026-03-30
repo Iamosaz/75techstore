@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 
 import React from 'react'
 
+// Welcome 75Techstore Carousel first display
+
 const HeroWelcome = () => {
   return (
  <section className="w-full bg-gradient-to-br from brand-dark via-gray-700 to-brand-blue-400 text-white py-20 px-6 text-center">

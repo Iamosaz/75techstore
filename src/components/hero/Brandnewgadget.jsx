@@ -2,6 +2,7 @@
 import React from "react";
 import banner from "../../assets/brandnew.png"; // replace with your actual image
 
+// Discover Brand NewGadget third carousel
 
 const Brandnewgadget = () => {
   return (
@@ -16,7 +17,7 @@ const Brandnewgadget = () => {
       {/* Content Overlay */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
         <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-brand-blue via-brand-red to-orange bg-clip-text text-transparent drop-shadow-lg">
-          Discover Brand New Gadgets ✨
+          Discover Brand New Gadgets
         </h2>
         <p className="mt-8 max-w-xl text-lg text-white/90">
           Explore the latest laptops, smartphones and accessories fresh from the factory.

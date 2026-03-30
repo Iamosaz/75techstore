@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import banner from  '../../assets/75logo.png'
 
 
-// Become a member banner header 
+// Become a 75techstore member banner header 
 const TechCard75 = () => {
   return (
     <section className="max-w-6xl mx-auto my-20 px-6">

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from "react-router-dom";
 
-// the 75techstore services card mapping 
+// the 75techstore services card mapping on hero page
 
 const promos = [
   {

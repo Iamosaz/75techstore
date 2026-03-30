@@ -1,0 +1,71 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "SAMSUNG Galaxy A13 (Blue, 128 GB) (6 GB RAM)",
+      "category": "Phones",
+      "price": 110000,
+      "image": "phone",
+      "discount": 12000,
+      "available": 16,
+      "sold": 10,
+      "offerEnds": "2027-03-08T23:59:59"
+    },
+    {
+      "id": 2,
+      "name": "Brand New JBL audio speakers",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "speakers"
+    },
+    {
+      "id": 3,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "phone"
+    },
+    {
+      "id": 4,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "phone"
+    },
+    {
+      "id": 5,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "phone"
+    },
+    {
+      "id": 6,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 90000,
+      "image": "phone"
+    },
+    {
+      "id": 7,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "phone"
+    },
+    {
+       "id": 8,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "phone"
+    },
+    {
+       "id": 7,
+      "name": "Wireless Audio system multiroom 360",
+      "category": "Speakers",
+      "price": 7000,
+      "image": "phone"
+    }
+  ]
+}
