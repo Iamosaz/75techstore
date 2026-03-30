@@ -9,7 +9,7 @@ import "swiper/css"
 // import the brand logos
 import dell from "../../assets/Brands/dell.png"
 import msi from "../../assets/Brands/MSI.png"
-import samsung from "../../assets/Brands/SAMSUNG.png"
+import samsung from "../../assets/Brands/samsung.png"
 import hp from "../../assets/Brands/hp.png"
 import nvidia from "../../assets/Brands/Nvidia.png"
 import lenovo from "../../assets/Brands/Lenovo.png"
