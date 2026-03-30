@@ -4,7 +4,7 @@ import { FaShoppingCart } from "react-icons/fa"
 import SpecialOffers from "./SpecialOffers"
 import ProductData from "../Data.json"
 import phone from "../../assets/SAMSUNG Galaxy A13.png"
-import speakers from "../../assets/Speaker.png"
+import speakers from "../../assets/speaker.png"
 
 const imageMap = {
   phone,
