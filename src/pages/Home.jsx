@@ -12,6 +12,11 @@ import Category2 from "../components/category/Category2";
 import Services from "../components/Services/Services";
 import OurProducts from "../components/ourproducts/OurProducts";
 import LogoBrand from "../components/brandslogo/LogoBrand";
+import TopProduct from "../components/topproducts/TopProduct";
+import SwapDealLog from "../components/swapdealslog/SwapDealLog";
+import AboutSection from "../components/about/AboutsSection";
+import PreFooter from "../components/prefooter/PreFooter";
+
 
 const Home = () => {
   return ( 
@@ -47,10 +52,16 @@ const Home = () => {
          {/* <SplashDeals /> */}
          {/* <DigitalServicePreview /> */}
          <TechCard75 />
+         <AboutSection />
+         <TopProduct />
+         <SwapDealLog />
          <LogoBrand />
+         <PreFooter />
+      
+       
          {/* <OurMembers /> */}
       {/* ───────────── WHY CHOOSE US ───────────── */}
-      <section className="max-w-5xl mx-auto py-16 px-6 text-center">
+      {/* <section className="max-w-5xl mx-auto py-16 px-6 text-center">
         <h2 className="text-3xl font-bold text-brand-blue mb-10">
           Why Choose 75TechStore?
         </h2>
@@ -74,10 +85,10 @@ const Home = () => {
             </p>
           </li>
         </ul>
-      </section>
+      </section> */}
 
       {/* ───────────── NEWSLETTER ───────────── */}
-      <section className="bg-gradient-to-br from brand-dark via-gray-700 to-brand-blue-400 text-white py-14 text-center px-6">
+      {/* <section className="bg-gradient-to-br from brand-dark via-gray-700 to-brand-blue-400 text-white py-14 text-center px-6">
         <h2 className="text-3xl font-bold mb-3">Stay Up to Date</h2>
         <p className="text-white/80 mb-6">
           Get product deals, tech tips, and early access to our sales.
@@ -93,7 +104,7 @@ const Home = () => {
             Subscribe
           </button>
         </form>
-      </section>
+      </section> */}
     </main>
   );
 };

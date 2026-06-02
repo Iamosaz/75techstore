@@ -84,7 +84,7 @@ const OurProducts = () => {
                   <img
                     src={imageMap[product.image]}
                     alt={product.name}
-                    className="w-full h-32 object-contain mb-4 group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-45 object-contain mb-4 group-hover:scale-105 transition-transform duration-300"
                   />
 
                   <h4 className="text-sm font-semibold line-clamp-2 text-gray-700">

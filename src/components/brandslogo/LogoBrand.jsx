@@ -48,7 +48,7 @@ const LogoBrand = () => {
         {brands.map((logo, index) =>(
           <SwiperSlide key={index}>
             <div className='flex items-center justify-center bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition duration-300'>
-             <img src={logo} alt="brands" className='h-16 object-contain '/>
+             <img src={logo} alt="brands" className='h-12 object-contain '/>
             </div>
           </SwiperSlide>
         ))}
