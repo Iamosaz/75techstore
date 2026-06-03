@@ -5,16 +5,20 @@ import laptop from '../../assets/macb.png'
 
 const Category = () => {
   return (
-    <div className="py-4">
+    <section className="py-4 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4">
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-          {/* First Card */}
-          <div className="relative h-[320px] rounded-3xl bg-gradient-to-br from-red-600 to-red-500 text-white p-6 flex items-end">
-            <div>
+          {/* Gadgets Card */}
+          <div className="relative h-[320px] rounded-3xl bg-gradient-to-br from-red-600 to-red-500 text-white p-6 flex items-end overflow-hidden">
+
+            <div className="z-10">
               <p className="text-sm text-black">Enjoy</p>
               <p className="text-lg">with</p>
-              <p className="text-3xl font-semibold mb-4">Gadgets</p>
+              <p className="text-3xl font-semibold mb-4">
+                Gadgets
+              </p>
 
               <a
                 href="/shop"
@@ -26,17 +30,20 @@ const Category = () => {
 
             <img
               src={gadget}
-              alt="gadget"
-              className="absolute top-24 ml-2 w-80"
+              alt="Gadgets"
+              className="absolute right-0 bottom-0 h-[220px] object-contain"
             />
           </div>
 
-          {/* Second Card */}
-          <div className="relative h-[320px] rounded-3xl bg-amber-500 text-white p-6 flex items-end">
-            <div>
+          {/* Earphones Card */}
+          <div className="relative h-[320px] rounded-3xl bg-amber-500 text-white p-6 flex items-end overflow-hidden">
+
+            <div className="z-10">
               <p className="text-sm text-black">Enjoy</p>
               <p className="text-lg">with</p>
-              <p className="text-2xl font-semibold mb-4">Earphones</p>
+              <p className="text-2xl font-semibold mb-4">
+                Earphones
+              </p>
 
               <a
                 href="/shop"
@@ -49,16 +56,19 @@ const Category = () => {
             <img
               src={earphone}
               alt="Earphones"
-              className="absolute top-20 ml-20 w-30"
+              className="absolute right-0 bottom-0 h-[220px] object-contain"
             />
           </div>
 
-          {/* Third Card (Wide) */}
-          <div className="relative h-[320px] rounded-3xl bg-blue-400 text-white p-6 flex items-end sm:col-span-2">
-            <div>
+          {/* Laptops Card */}
+          <div className="relative h-[320px] rounded-3xl bg-blue-400 text-white p-6 flex items-end sm:col-span-2 overflow-hidden">
+
+            <div className="z-10">
               <p className="text-sm text-black">Enjoy</p>
               <p className="text-lg">with</p>
-              <p className="text-2xl font-semibold mb-4">Laptops</p>
+              <p className="text-2xl font-semibold mb-4">
+                Laptops
+              </p>
 
               <a
                 href="/shop"
@@ -71,13 +81,13 @@ const Category = () => {
             <img
               src={laptop}
               alt="Laptop"
-              className="absolute top-14 ml-42 w-80"
+              className="absolute right-0 bottom-0 h-[260px] max-w-[60%] object-contain"
             />
           </div>
 
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 

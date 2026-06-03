@@ -123,64 +123,83 @@ const CustomChatbot = () => {
 
   return (
     <>
-      {/* Chat Button */}
+      {/* ═══════════════════════════════════════ */}
+      {/* FLOATING BUTTON - DOESN'T TAKE SPACE */}
+      {/* ═══════════════════════════════════════ */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
+          <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            onClick={() => setIsOpen(true)}
-            className='fixed bottom-8 right-8 z-40 group'
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            className='pointer-events-none fixed inset-0 z-50'
+            style={{ pointerEvents: 'none' }}
           >
-            <motion.div
-              className='relative'
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+            <button
+              onClick={() => setIsOpen(true)}
+              className='pointer-events-auto absolute bottom-8 right-8 group'
+              style={{
+                position: 'fixed',
+                bottom: '32px',
+                right: '32px',
+                zIndex: 50,
+              }}
             >
-              {/* Badge */}
               <motion.div
-                className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full 
-                  flex items-center justify-center text-white text-xs font-bold
-                  animate-pulse shadow-lg'
-              >
-                1
-              </motion.div>
-
-              {/* Button */}
-              <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 
-                rounded-full flex items-center justify-center text-white shadow-2xl
-                cursor-pointer'>
-                <FaRobot size={28} />
-              </div>
-
-              {/* Pulse */}
-              <motion.div
-                className='absolute inset-0 rounded-full border-2 border-blue-400'
-                animate={{ scale: [1, 1.3], opacity: [1, 0] }}
+                className='relative'
+                animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
-              />
-            </motion.div>
-          </motion.button>
+              >
+                {/* Badge */}
+                <motion.div
+                  className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full 
+                    flex items-center justify-center text-white text-xs font-bold
+                    animate-pulse shadow-lg'
+                >
+                  1
+                </motion.div>
+
+                {/* Button */}
+                <div className='w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 
+                  rounded-full flex items-center justify-center text-white shadow-2xl
+                  cursor-pointer hover:scale-110 transition-transform'>
+                  <FaRobot size={28} />
+                </div>
+
+                {/* Pulse */}
+                <motion.div
+                  className='absolute inset-0 rounded-full border-2 border-blue-400'
+                  animate={{ scale: [1, 1.3], opacity: [1, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </motion.div>
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Chat Window */}
+      {/* ═══════════════════════════════════════ */}
+      {/* CHAT WINDOW - FLOATING */}
+      {/* ═══════════════════════════════════════ */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 100 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 100 }}
-            className='fixed bottom-8 right-8 z-50 w-96 max-w-[calc(100vw-32px)]
+            style={{
+              position: 'fixed',
+              bottom: '32px',
+              right: '32px',
+              zIndex: 50,
+            }}
+            className='w-96 max-w-[calc(100vw-32px)]
               bg-white rounded-3xl shadow-2xl flex flex-col h-[600px]
               overflow-hidden'
           >
             {/* Header */}
             <div className='bg-gradient-to-r from-blue-500 to-blue-600 text-white 
-              p-6 flex items-center justify-between'>
+              p-6 flex items-center justify-between flex-shrink-0'>
               <div className='flex items-center gap-3'>
                 <div className='w-10 h-10 bg-white/20 rounded-full flex items-center justify-center'>
                   <FaRobot size={20} />
@@ -192,13 +211,13 @@ const CustomChatbot = () => {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className='p-2 hover:bg-white/20 rounded-full transition-all'
+                className='p-2 hover:bg-white/20 rounded-full transition-all flex-shrink-0'
               >
                 <FaTimes size={20} />
               </button>
             </div>
 
-            {/* Messages */}
+            {/* Messages Container */}
             <div className='flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50'>
               {messages.map((msg) => (
                 <motion.div
@@ -225,7 +244,7 @@ const CustomChatbot = () => {
                 </motion.div>
               ))}
 
-              {/* Loading */}
+              {/* Loading Indicator */}
               {isLoading && (
                 <motion.div className='flex justify-start'>
                   <div className='bg-white px-4 py-3 rounded-2xl rounded-bl-none shadow-md'>
@@ -276,8 +295,8 @@ const CustomChatbot = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <div className='border-t border-gray-200 p-4 bg-white flex gap-2'>
+            {/* Input Section */}
+            <div className='border-t border-gray-200 p-4 bg-white flex gap-2 flex-shrink-0'>
               <input
                 type='text'
                 value={inputValue}
@@ -285,15 +304,16 @@ const CustomChatbot = () => {
                 onKeyPress={handleKeyPress}
                 placeholder='Type your message...'
                 className='flex-1 px-4 py-3 border-2 border-gray-200 rounded-full
-                  focus:outline-none focus:border-blue-500 text-gray-900'
+                  focus:outline-none focus:border-blue-500 text-gray-900
+                  placeholder-gray-400'
               />
               <motion.button
                 onClick={() => handleSendMessage()}
-                disabled={isLoading}
+                disabled={isLoading || !inputValue.trim()}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className='p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full
-                  transition-all disabled:opacity-50'
+                  transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0'
               >
                 <FaPaperPlane size={18} />
               </motion.button>
