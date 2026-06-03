@@ -1,7 +1,7 @@
 import React from 'react'
 import console from '../../assets/console3.png'
 import virtual from '../../assets/VR.png'
-import speaker from '../../assets/Speaker.png'
+import speaker from '../../assets/speaker.png'
 
 const Category2 = () => {
   return (
