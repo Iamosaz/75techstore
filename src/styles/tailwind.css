@@ -1,35 +1,53 @@
+/* src/styles/tailwind.css */
 @import "tailwindcss";
 
-/* Tailwind CSS v4 Custom Theme
-   75 Tech Store – brand palette from logo */
-
 @theme {
-  /* Brand colors from your logo */
-  --color-brand-blue:  #00A7E1;   /* Cyan‑blue (the “7”)  */
-  --color-brand-red:   #E02525;   /* Bold red (the “5”)   */
-  --color-brand-dark:  #0A0A0A;   /* Near‑black background */
-  --color-orange:      #FA6E00;   /* Orange accent/gradient */
- --color-brand-blue-50: #e7f1fb;  
- --color-brand-blue-100: #c2dcf6;
- --color-brand-blue-500: #0071ce;
---color-accent-yellow-100: #fff7d6;
- --color-accent-yellow-400: #ffe255;
- --color-accent-yellow-500: #ffc220;
- --color-gray:  #808080;
+  /* Brand colors from logo */
+  --color-brand-dark: #0A0A0A;
+  --color-brand-blue: #00A7E1;
+  --color-brand-red: #E02525;
+  --color-orange: #FA6E00;
 
+  /* Blue palette */
+  --color-brand-blue-50: #e7f1fb;
+  --color-brand-blue-100: #c2dcf6;
+  --color-brand-blue-500: #0071ce;
+  --color-brand-blue-600: #00A7E1;
 
+  /* Yellow palette */
+  --color-accent-yellow-100: #fff7d6;
+  --color-accent-yellow-400: #ffe255;
+  --color-accent-yellow-500: #ffc220;
 
-  /* Neutral grayscale */
-  --color-gray-50:   #f9fafb;
-  --color-gray-100:  #f3f4f6;
-  --color-gray-300:  #d1d5db;
-  --color-gray-600:  #4b5563;
-  --color-gray-800:  #1f2937;
+  /* Gray palette (COMPLETE) */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
 
-  /* Status colors (optional) */
+  /* Neutral/Slate palette */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Status colors */
   --color-success: #10b981;
-  --color-danger:  #ef4444;
-  --color-info:    #3b82f6;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  --color-warning: #f59e0b;
 
   /* Font setup */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -38,37 +56,51 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 }
 
-/* Custom utility shorthands */
+/* ═════════════════════════════════════════ */
+/* CUSTOM UTILITIES */
+/* ═════════════════════════════════════════ */
 
 @utility btn {
   @apply px-4 py-2 font-semibold rounded-md transition duration-200;
 }
 
-/* Primary button → your cyan blue */
 @utility btn-primary {
   @apply btn bg-brand-blue text-white hover:bg-brand-red;
 }
 
-/* Accent / highlight button → your orange */
 @utility btn-accent {
   @apply btn bg-orange text-white hover:bg-brand-blue;
 }
 
-/* Outline variant → blue border, switches on hover */
 @utility btn-outline {
-  @apply btn border border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white;
-  
+  @apply btn border-2 border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white;
 }
 
-/* btn category */
 @utility btn-category {
-   @apply btn border border-white text-white hover:bg-white hover:text-brand-dark;
-  
+  @apply btn border-2 border-white text-white hover:bg-white hover:text-brand-dark;
 }
 
 @utility btn-category1 {
-  @apply btn border border-brand-blue text-white hover:bg-brand-blue hover:text-white;
-  
+  @apply btn border-2 border-brand-blue text-white hover:bg-brand-blue hover:text-white;
+}
+
+/* ═════════════════════════════════════════ */
+/* BASE STYLES */
+/* ═════════════════════════════════════════ */
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-sans antialiased bg-gray-50;
+  }
+
+  * {
+    @apply box-border;
+  }
 }
