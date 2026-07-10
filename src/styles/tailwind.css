@@ -19,7 +19,7 @@
   --color-accent-yellow-400: #ffe255;
   --color-accent-yellow-500: #ffc220;
 
-  /* Gray palette (COMPLETE) */
+  /* Gray palette */
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
   --color-gray-200: #e5e7eb;
@@ -57,6 +57,21 @@
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+
+  /* ✅ Add animations here */
+  --animate-fadeIn: fadeIn 0.3s ease-out;
+  --animate-slideUp: slideUp 0.4s ease-out;
+}
+
+/* ✅ Add keyframes here */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(50px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 /* ═════════════════════════════════════════ */

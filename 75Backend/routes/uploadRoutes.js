@@ -1,32 +1,35 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
+import { upload } from '../config/cloudinary.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename(req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${file.fieldname}${ext}`);
-  }
-});
-
-const upload = multer({ storage });
 const router = express.Router();
 
-router.post('/', upload.single('image'), (req, res) => {
-  // graceful check: no file = friendly 400
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded — check the field name is "image".' });
-  }
+// ✅ Upload single image
+router.post(
+  '/',
+  protect,
+  adminOnly,
+  upload.single('image'),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          message: 'No image file provided' 
+        });
+      }
 
-  // normalize slashes for Windows paths
-  const normalized = req.file.path.replace(/\\/g, '/');
-  res.json({
-    message: 'File uploaded successfully',
-    imageUrl: `/${normalized}`
-  });
-});
+      console.log('✅ Image uploaded to Cloudinary:', req.file.path);
+
+      res.json({
+        message: 'Image uploaded successfully',
+        imageUrl: req.file.path  // ✅ Cloudinary URL
+      });
+
+    } catch (error) {
+      console.error('❌ Upload error:', error);
+      res.status(500).json({ message: 'Image upload failed' });
+    }
+  }
+);
 
 export default router;

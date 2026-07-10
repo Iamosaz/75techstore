@@ -1,40 +1,69 @@
-import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
+import jwt from "jsonwebtoken";
+import { User } from "../models/User.js";
 
-dotenv.config();
+export const protect = async (req, res, next) => {
+  try {
+    let token;
 
-// load .env so JWT_SECRET is available
-
-export const protect = (req, res, next ) => {
-  try{
-    // 1 check for token in Authorization header
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Not authorizes, no token provided'});
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
     }
 
-    // 2 Extract the token
-    const token = authHeader.split(' ')[1];
+    // ✅ Add detailed logging
+    console.log('🔍 Full Auth Header:', req.headers.authorization);
+    console.log('🔍 Extracted Token:', token ? token.substring(0, 30) + '...' : 'MISSING');
+    console.log('🔍 Request URL:', req.method, req.url);
 
-    // 3 verify token validity 
+    if (!token) {
+      return res.status(401).json({ 
+        message: "No token, authorization denied" 
+      });
+    }
+
+    if (token === 'null' || token === 'undefined' || token === '') {
+      return res.status(401).json({ 
+        message: "Invalid token format" 
+      });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("🔓 Token verified for:", decoded.email);
 
-    // 4 Attach the decoded user data to request object
-    req.user = decoded; // now accessible in next functions
+    const user = await User.findById(decoded.id).select("-passwordHash");
 
-    // Pass control to next piece of middleware / controller 
+    if (!user) {
+      return res.status(401).json({ 
+        message: "Token invalid - user not found" 
+      });
+    }
+
+    req.user = user;
     next();
+
   } catch (error) {
-    res.status(401).json({ message: 'Token invalid or expired', error: error.message })
+    console.error("❌ Auth middleware error:", error.message);
+    console.error("❌ Token that failed:", error.message);
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired, please login again" });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Token invalid, please login again" });
+    }
+
+    return res.status(401).json({ message: "Authorization failed" });
   }
 };
 
-// optional: only allow admins
-export const adminOnly = (req, res, next ) => {
-  if (req.user && req.user.role === 'admin') {
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
     next();
   } else {
-    res.status(403).json({ message: "Acess forbidden: Admins only" })
+    return res.status(403).json({ 
+      message: "Access denied. Admins only." 
+    });
   }
 };

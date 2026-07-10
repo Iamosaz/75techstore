@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -55,8 +56,9 @@ const Navbar = () => {
 
   return (
     <>
+      {/* ════════════════════════════════════════════════════════════ */}
       {/* STICKY TOP BAR (LOGO, SEARCH, ICONS) */}
-
+      {/* ════════════════════════════════════════════════════════════ */}
       <header className='sticky top-0 z-50 bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 
         border-b border-yellow-500/20 shadow-lg backdrop-blur-md'>
 
@@ -75,9 +77,10 @@ const Navbar = () => {
                 <img
                   src={logo}
                   alt='75techstore Logo'
-                  className='h-18 w-auto object-contain'
+                  className='h-14 w-auto object-contain'
                 />
-                <div className='absolute -bottom-1 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 
+                <div className='absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r 
+                  from-yellow-500 via-yellow-400 to-transparent opacity-0 group-hover:opacity-100 
                   transition-opacity duration-300' />
               </div>
             </Link>
@@ -239,8 +242,9 @@ const Navbar = () => {
         </div>
       </header>
 
-      
+      {/* ════════════════════════════════════════════════════════════ */}
       {/* NAVIGATION MENU (DESKTOP) */}
+      {/* ════════════════════════════════════════════════════════════ */}
       <nav className='hidden md:block bg-gradient-to-r from-slate-800 via-slate-800 to-slate-900 
         border-b border-yellow-500/20'>
         <div className='max-w-7xl mx-auto px-4'>
@@ -297,96 +301,130 @@ const Navbar = () => {
         </div>
       </nav>
 
-    
-      {/* MOBILE MENU */}
-     
+      {/* ════════════════════════════════════════════════════════════ */}
+      {/* MOBILE MENU - FULLSCREEN OVERLAY */}
+      {/* ════════════════════════════════════════════════════════════ */}
       {mobileMenuOpen && (
-        <nav className='md:hidden bg-gradient-to-b from-slate-800 via-slate-900 
-          to-neutral-900 border-b border-yellow-500/20 animate-in fade-in slide-in-from-top-2 
-          duration-300'>
-          <div className='max-w-7xl mx-auto px-4 py-4'>
-            
-            {/* Mobile Auth Links */}
-            <div className='mb-4 pb-4 border-b border-white/10'>
-              <Link
-                to='/login'
-                className='flex items-center gap-3 px-4 py-3 text-gray-200 
-                  hover:text-yellow-500 hover:bg-white/5 rounded-lg transition-all 
-                  duration-300 text-sm font-medium mb-2'
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FaUser size={16} />
-                Sign In
-              </Link>
-              <Link
-                to='/signup'
-                className='flex items-center gap-3 px-4 py-3 text-gray-200 
-                  hover:text-yellow-500 hover:bg-white/5 rounded-lg transition-all 
-                  duration-300 text-sm font-medium mb-2'
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FaUserPlus size={16} />
-                Create Account
-              </Link>
-              <Link
-                to='/seller'
-                className='flex items-center gap-3 px-4 py-3 text-gray-200 
-                  hover:text-yellow-500 hover:bg-white/5 rounded-lg transition-all 
-                  duration-300 text-sm font-medium'
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FaBox size={16} />
-                Become a Seller
-              </Link>
-            </div>
+        <>
+          {/* Dark Overlay Background - Click to close */}
+          <div
+            className='fixed inset-0 bg-black/50 md:hidden z-40'
+            onClick={() => setMobileMenuOpen(false)}
+          />
 
-            {/* Navigation Links */}
-            <ul className='flex flex-col gap-1'>
-              {navLinks.map((link, index) => (
-                <li key={index}>
-                  <button
-                    onClick={() => setDropdownOpen(dropdownOpen === index ? null : index)}
-                    className='w-full text-left px-4 py-3 text-white font-medium 
-                      flex items-center justify-between gap-2 hover:text-yellow-500 
-                      hover:bg-white/5 rounded-lg transition-all duration-300'
-                  >
-                    <div className='flex items-center gap-2'>
-                      {link.icon}
-                      {link.label}
-                    </div>
-                    {link.submenu && (
-                      <FaChevronDown
-                        size={14}
-                        className={`transition-transform duration-300 ${
-                          dropdownOpen === index ? 'rotate-180' : ''
-                        }`}
-                      />
+          {/* Full-Screen Mobile Menu */}
+          <nav className='fixed top-0 left-0 right-0 bottom-0 md:hidden z-50
+            bg-gradient-to-b from-slate-800 via-slate-900 to-neutral-900
+            overflow-y-auto pt-20'>
+            <div className='max-w-7xl mx-auto px-4 py-4'>
+
+              {/* ─── Mobile Auth Links ─── */}
+              <div className='mb-4 pb-4 border-b border-white/10'>
+                <Link
+                  to='/login'
+                  className='flex items-center gap-3 px-4 py-3 text-gray-200 
+                    hover:text-yellow-500 hover:bg-white/5 rounded-lg transition-all 
+                    duration-300 text-sm font-medium mb-2'
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FaUser size={16} />
+                  <div>
+                    <p className='font-semibold'>Sign In</p>
+                    <p className='text-xs text-gray-400'>Buy products</p>
+                  </div>
+                </Link>
+
+                <Link
+                  to='/signup'
+                  className='flex items-center gap-3 px-4 py-3 text-gray-200 
+                    hover:text-yellow-500 hover:bg-white/5 rounded-lg transition-all 
+                    duration-300 text-sm font-medium mb-2'
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FaUserPlus size={16} />
+                  <div>
+                    <p className='font-semibold'>Create Account</p>
+                    <p className='text-xs text-gray-400'>Join as buyer or seller</p>
+                  </div>
+                </Link>
+
+                <Link
+                  to='/seller'
+                  className='flex items-center gap-3 px-4 py-3 text-gray-200 
+                    hover:text-yellow-500 hover:bg-white/5 rounded-lg transition-all 
+                    duration-300 text-sm font-medium'
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FaBox size={16} />
+                  <div>
+                    <p className='font-semibold'>Become a Seller</p>
+                    <p className='text-xs text-gray-400'>Sell on 75TechStore</p>
+                  </div>
+                </Link>
+              </div>
+
+              {/* ─── Navigation Links ─── */}
+              <ul className='flex flex-col gap-1 mb-8'>
+                {navLinks.map((link, index) => (
+                  <li key={index}>
+                    <button
+                      onClick={() => setDropdownOpen(dropdownOpen === index ? null : index)}
+                      className='w-full text-left px-4 py-3 text-white font-medium 
+                        flex items-center justify-between gap-2 hover:text-yellow-500 
+                        hover:bg-white/5 rounded-lg transition-all duration-300'
+                    >
+                      <div className='flex items-center gap-2'>
+                        {link.icon}
+                        {link.label}
+                      </div>
+                      {link.submenu && (
+                        <FaChevronDown
+                          size={14}
+                          className={`transition-transform duration-300 ${
+                            dropdownOpen === index ? 'rotate-180' : ''
+                          }`}
+                        />
+                      )}
+                    </button>
+
+                    {/* Mobile Dropdown */}
+                    {link.submenu && dropdownOpen === index && (
+                      <div className='bg-white/5 rounded-lg mt-1 overflow-hidden'>
+                        {link.submenu.map((item, i) => (
+                          <Link
+                            key={i}
+                            to={item.href}
+                            className='block px-6 py-3 text-gray-300 hover:text-yellow-500 
+                              hover:bg-white/10 transition-all duration-300 text-sm 
+                              border-l-3 border-transparent hover:border-yellow-500 
+                              ml-2'
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
                     )}
-                  </button>
+                  </li>
+                ))}
+              </ul>
 
-                  {/* Mobile Dropdown */}
-                  {link.submenu && dropdownOpen === index && (
-                    <div className='bg-white/5 rounded-lg mt-1 overflow-hidden'>
-                      {link.submenu.map((item, i) => (
-                        <Link
-                          key={i}
-                          to={item.href}
-                          className='block px-6 py-3 text-gray-300 hover:text-yellow-500 
-                            hover:bg-white/10 transition-all duration-300 text-sm 
-                            border-l-3 border-transparent hover:border-yellow-500 
-                            ml-2'
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
+              {/* ─── Close Button at Bottom ─── */}
+              <div className='pt-4 border-t border-white/10'>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className='w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white 
+                    rounded-lg font-bold transition-all duration-300 flex items-center 
+                    justify-center gap-2'
+                >
+                  <FaTimes size={18} />
+                  Close Menu
+                </button>
+              </div>
+
+            </div>
+          </nav>
+        </>
       )}
     </>
   )

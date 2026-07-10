@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { FaFire, FaShoppingCart } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
 
 const DealDayCard = ({ deals = [] }) => {
+  const navigate = useNavigate()
   const [current, setCurrent] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(3600) // 1 hour countdown
+  const [timeLeft, setTimeLeft] = useState(3600)
 
-  // Auto-slide deals
   useEffect(() => {
     if (deals.length === 0) return
     const interval = setInterval(() => {
@@ -14,7 +15,6 @@ const DealDayCard = ({ deals = [] }) => {
     return () => clearInterval(interval)
   }, [deals.length])
 
-  // Countdown timer
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => (prev > 0 ? prev - 1 : 3600))
@@ -22,7 +22,6 @@ const DealDayCard = ({ deals = [] }) => {
     return () => clearInterval(timer)
   }, [])
 
-  // Format time
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600).toString().padStart(2, "0")
     const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, "0")
@@ -34,8 +33,12 @@ const DealDayCard = ({ deals = [] }) => {
 
   if (deals.length === 0) {
     return (
-      <div className="p-4 bg-red-50 text-red-500 rounded-2xl text-center">
-        No deals available
+      <div className="p-4 bg-blue-50 text-blue-500 rounded-2xl text-center">
+        <p className="text-2xl mb-2">🔥</p>
+        <p className="font-medium text-sm">No deals available</p>
+        <p className="text-xs text-gray-400 mt-1">
+          Add deals from admin panel
+        </p>
       </div>
     )
   }
@@ -43,7 +46,7 @@ const DealDayCard = ({ deals = [] }) => {
   const deal = deals[current]
 
   return (
-    <div className="bg-gradient-to-b from-blue-600 to-blue-800 
+    <div className="bg-gradient-to-b from-blue-600 to-blue-800
       rounded-2xl overflow-hidden shadow-xl text-white flex flex-col h-full">
 
       {/* HEADER */}
@@ -60,28 +63,35 @@ const DealDayCard = ({ deals = [] }) => {
 
       {/* COUNTDOWN TIMER */}
       <div className="flex justify-center gap-3 py-4 px-5">
-        {[{ label: "Hrs", value: h }, { label: "Min", value: m }, { label: "Sec", value: s }].map(
-          (item) => (
-            <div key={item.label} className="flex flex-col items-center">
-              <div className="bg-white text-blue-700 font-extrabold text-xl 
-                w-12 h-12 flex items-center justify-center rounded-xl shadow-md">
-                {item.value}
-              </div>
-              <span className="text-[10px] text-blue-200 mt-1 uppercase tracking-widest">
-                {item.label}
-              </span>
+        {[
+          { label: "Hrs", value: h },
+          { label: "Min", value: m },
+          { label: "Sec", value: s }
+        ].map((item) => (
+          <div key={item.label} className="flex flex-col items-center">
+            <div className="bg-white text-blue-700 font-extrabold text-xl
+              w-12 h-12 flex items-center justify-center rounded-xl shadow-md">
+              {item.value}
             </div>
-          )
-        )}
+            <span className="text-[10px] text-blue-200 mt-1 uppercase tracking-widest">
+              {item.label}
+            </span>
+          </div>
+        ))}
       </div>
 
       {/* PRODUCT IMAGE */}
-      <div className="bg-white/10 mx-4 rounded-xl flex items-center 
-        justify-center h-44 overflow-hidden">
+      <div
+        onClick={() => navigate(`/product/${deal._id}`)}
+        className="bg-white/10 mx-4 rounded-xl flex items-center
+          justify-center h-44 overflow-hidden cursor-pointer"
+      >
         <img
-          src={deal.image}
+          // ✅ Fixed - use imageUrl not image
+          src={deal.imageUrl || 'https://via.placeholder.com/200'}
           alt={deal.name}
-          className="h-40 object-contain transition-all duration-500"
+          className="h-40 object-contain transition-all duration-500
+                     hover:scale-110"
         />
       </div>
 
@@ -89,45 +99,57 @@ const DealDayCard = ({ deals = [] }) => {
       <div className="p-5 flex flex-col gap-3 flex-1">
 
         {/* CATEGORY */}
-        <span className="bg-orange-400 text-white text-[10px] font-bold 
+        <span className="bg-orange-400 text-white text-[10px] font-bold
           px-2 py-1 rounded-full w-fit uppercase">
           {deal.category || "Hot Deal"}
         </span>
 
         {/* NAME */}
-        <h4 className="text-sm font-semibold leading-snug line-clamp-2">
+        <h4
+          onClick={() => navigate(`/product/${deal._id}`)}
+          className="text-sm font-semibold leading-snug line-clamp-2
+                     cursor-pointer hover:text-orange-300 transition"
+        >
           {deal.name}
         </h4>
 
         {/* PRICE */}
-        <p className="text-2xl font-extrabold text-orange-300">
-          ₦{Number(deal.price).toLocaleString()}
-        </p>
-
-        {/* DOTS INDICATOR */}
-        <div className="flex justify-center gap-2 mt-1">
-          {deals.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === current ? "bg-white w-4" : "bg-blue-400"
-              }`}
-            />
-          ))}
+        <div>
+          {deal.discount > 0 && (
+            <span className="text-blue-300 line-through text-xs mr-2">
+              ₦{Number(deal.price).toLocaleString()}
+            </span>
+          )}
+          <span className="text-2xl font-extrabold text-orange-300">
+            ₦{Number(deal.price - (deal.discount || 0)).toLocaleString()}
+          </span>
         </div>
 
-        {/* ADD TO CART BUTTON */}
+        {/* DOTS */}
+        {deals.length > 1 && (
+          <div className="flex justify-center gap-2 mt-1">
+            {deals.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === current ? "bg-white w-4" : "bg-blue-400 w-2"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* ADD TO CART */}
         <button
-          className="mt-2 w-full bg-orange-400 hover:bg-orange-500 
-            text-white font-bold py-2.5 rounded-xl flex items-center 
+          className="mt-2 w-full bg-orange-400 hover:bg-orange-500
+            text-white font-bold py-2.5 rounded-xl flex items-center
             justify-center gap-2 transition-all duration-300"
-          onClick={() => console.log("Add to cart", deal.id)}
+          onClick={() => console.log("Add to cart", deal._id)}
         >
           <FaShoppingCart size={14} />
           Add to Cart
         </button>
-
       </div>
     </div>
   )
