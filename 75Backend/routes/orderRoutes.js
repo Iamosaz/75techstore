@@ -1,25 +1,27 @@
-import mongoose from 'mongoose'
-
-import express from 'express';
+// 75Backend/routes/orderRoutes.js
+import express from 'express'
 import {
   createOrder,
-  getAllOrders,
+  getMyOrders,
   getOrderById,
+  trackOrder,
+  getAllOrders,
   updateOrderStatus,
-  deleteOrder
-} from '../controllers/orderController.js';
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+  cancelOrder
+} from '../controllers/orderController.js'
+import { protect, adminOnly } from '../middleware/authMiddleware.js'
 
-const router = express.Router();
+const router = express.Router()
 
-// Customer creates their order
-router.post('/', protect, createOrder);
+// Customer routes
+router.post('/', protect, createOrder)
+router.get('/my-orders', protect, getMyOrders)
+router.get('/track/:orderNumber', trackOrder)
+router.get('/:id', protect, getOrderById)
+router.put('/:id/cancel', protect, cancelOrder)
 
-// Admin controls
-router.get('/', protect, adminOnly, getAllOrders);
-router.get('/:id', protect, getOrderById);
-router.put('/:id', protect, adminOnly, updateOrderStatus);
-router.delete('/:id', protect, adminOnly, deleteOrder);
+// Admin routes
+router.get('/', protect, adminOnly, getAllOrders)
+router.put('/:id/status', protect, adminOnly, updateOrderStatus)
 
-export default router;
-
+export default router

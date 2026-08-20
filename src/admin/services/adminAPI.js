@@ -1,10 +1,15 @@
 /**
  * Real API Service - Connects to Node.js/Express Backend
+ * 75TechStore Admin API
  */
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-const TIMEOUT = 10000;
+const TIMEOUT = 30000;
+
+// ✅ Get correct token based on who is calling
+const getAdminToken = () => localStorage.getItem("adminToken");
+const getCustomerToken = () => localStorage.getItem("75token");
 
 /**
  * Fetch wrapper with timeout and error handling
@@ -14,7 +19,7 @@ const fetchWithTimeout = async (url, options = {}) => {
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
   try {
-    const token = localStorage.getItem("adminToken");
+    const token = getAdminToken();
 
     if (!token) {
       console.warn("⚠️ No adminToken found in localStorage for:", url);
@@ -37,6 +42,46 @@ const fetchWithTimeout = async (url, options = {}) => {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminUser");
       window.location.href = "/admin/login";
+      throw new Error("Token invalid or expired");
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+};
+
+// ✅ Customer fetch - uses customer token (75token)
+const customerFetch = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+
+  try {
+    const token = getCustomerToken();
+
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 401) {
+      console.error("🔒 401 Unauthorized - Customer token invalid");
+      localStorage.removeItem("75token");
+      localStorage.removeItem("75user");
+      window.location.href = "/login";
       throw new Error("Token invalid or expired");
     }
 
@@ -152,7 +197,9 @@ export const productAPI = {
     status = ""
   ) => {
     console.log(`📦 Fetching products - Page: ${page}, Search: ${search}`);
-    const params = new URLSearchParams({ page, limit, search, category, status });
+    const params = new URLSearchParams({
+      page, limit, search, category, status
+    });
     return fetchWithTimeout(`${API_BASE_URL}/products?${params}`, {
       method: "GET",
     });
@@ -167,7 +214,7 @@ export const productAPI = {
 
   create: async (formData) => {
     console.log("➕ Creating product");
-    const token = localStorage.getItem("adminToken");
+    const token = getAdminToken();
     return fetch(`${API_BASE_URL}/products`, {
       method: "POST",
       body: formData,
@@ -188,7 +235,7 @@ export const productAPI = {
 
   update: async (id, formData) => {
     console.log(`🔄 Updating product: ${id}`);
-    const token = localStorage.getItem("adminToken");
+    const token = getAdminToken();
     return fetch(`${API_BASE_URL}/products/${id}`, {
       method: "PUT",
       body: formData,
@@ -231,14 +278,18 @@ export const productAPI = {
 
 // ========== ORDERS API ==========
 export const orderAPI = {
-  getAll: async (page = 1, limit = 10, status = "", search = "") => {
+  // ✅ Admin - get all orders
+  getAll: async (page = 1, limit = 20, status = "", search = "") => {
     console.log(`🛒 Fetching orders - Page: ${page}, Status: ${status}`);
-    const params = new URLSearchParams({ page, limit, status, search });
+    const params = new URLSearchParams({ page, limit });
+    if (status) params.append("status", status);
+    if (search) params.append("search", search);
     return fetchWithTimeout(`${API_BASE_URL}/orders?${params}`, {
       method: "GET",
     });
   },
 
+  // ✅ Admin - get single order
   getById: async (id) => {
     console.log(`🛒 Fetching order: ${id}`);
     return fetchWithTimeout(`${API_BASE_URL}/orders/${id}`, {
@@ -246,11 +297,52 @@ export const orderAPI = {
     });
   },
 
-  updateStatus: async (id, status, paymentStatus) => {
-    console.log(`🔄 Updating order: ${id} -> ${status}`);
+  // ✅ Admin - update order status
+  updateStatus: async (id, data) => {
+    console.log(`🔄 Updating order: ${id} -> ${data.orderStatus}`);
     return fetchWithTimeout(`${API_BASE_URL}/orders/${id}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ status, paymentStatus }),
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  // ✅ Public - track order by order number (no token needed)
+  trackOrder: async (orderNumber) => {
+    console.log(`🔍 Tracking order: ${orderNumber}`);
+    const response = await fetch(
+      `${API_BASE_URL}/orders/track/${orderNumber}`,
+      { method: "GET" }
+    );
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || "Order not found");
+    }
+    return response.json();
+  },
+
+  // ✅ Customer - cancel order (uses customer token)
+  cancelOrder: async (id, cancelReason) => {
+    console.log(`❌ Cancelling order: ${id}`);
+    return customerFetch(`${API_BASE_URL}/orders/${id}/cancel`, {
+      method: "PUT",
+      body: JSON.stringify({ cancelReason }),
+    });
+  },
+
+  // ✅ Customer - get my orders (uses customer token)
+  getMyOrders: async () => {
+    console.log("📦 Fetching my orders");
+    return customerFetch(`${API_BASE_URL}/orders/my-orders`, {
+      method: "GET",
+    });
+  },
+
+  // ✅ Customer - create order (uses customer token)
+  createOrder: async (orderData) => {
+    console.log("🛒 Creating order");
+    return customerFetch(`${API_BASE_URL}/orders`, {
+      method: "POST",
+      body: JSON.stringify(orderData),
     });
   },
 
@@ -263,8 +355,9 @@ export const orderAPI = {
 
   exportOrders: async (format = "csv") => {
     console.log("📥 Exporting orders");
-    const token = localStorage.getItem("adminToken");
-    window.location.href = `${API_BASE_URL}/orders/export?format=${format}&token=${token}`;
+    const token = getAdminToken();
+    window.location.href =
+      `${API_BASE_URL}/orders/export?format=${format}&token=${token}`;
   },
 };
 
@@ -272,9 +365,10 @@ export const orderAPI = {
 export const analyticsAPI = {
   getSalesData: async (days = 30) => {
     console.log(`📈 Fetching sales data - Last ${days} days`);
-    return fetchWithTimeout(`${API_BASE_URL}/analytics/sales?days=${days}`, {
-      method: "GET",
-    });
+    return fetchWithTimeout(
+      `${API_BASE_URL}/analytics/sales?days=${days}`,
+      { method: "GET" }
+    );
   },
 
   getRevenueData: async (days = 30) => {
@@ -295,9 +389,10 @@ export const analyticsAPI = {
 
   getDashboardStats: async () => {
     console.log("🎯 Fetching dashboard stats");
-    return fetchWithTimeout(`${API_BASE_URL}/analytics/dashboard-stats`, {
-      method: "GET",
-    });
+    return fetchWithTimeout(
+      `${API_BASE_URL}/analytics/dashboard-stats`,
+      { method: "GET" }
+    );
   },
 
   getCustomerStats: async (days = 30) => {
@@ -310,23 +405,26 @@ export const analyticsAPI = {
 
   getProductStats: async () => {
     console.log("📦 Fetching product stats");
-    return fetchWithTimeout(`${API_BASE_URL}/analytics/product-stats`, {
-      method: "GET",
-    });
+    return fetchWithTimeout(
+      `${API_BASE_URL}/analytics/product-stats`,
+      { method: "GET" }
+    );
   },
 
   getOrderStats: async () => {
     console.log("🛒 Fetching order stats");
-    return fetchWithTimeout(`${API_BASE_URL}/analytics/order-stats`, {
-      method: "GET",
-    });
+    return fetchWithTimeout(
+      `${API_BASE_URL}/analytics/order-stats`,
+      { method: "GET" }
+    );
   },
 
   getMonthlyComparison: async () => {
     console.log("📊 Fetching monthly comparison");
-    return fetchWithTimeout(`${API_BASE_URL}/analytics/monthly-comparison`, {
-      method: "GET",
-    });
+    return fetchWithTimeout(
+      `${API_BASE_URL}/analytics/monthly-comparison`,
+      { method: "GET" }
+    );
   },
 };
 
@@ -371,6 +469,7 @@ export const blogAPI = {
   },
 };
 
+// ========== DEFAULT EXPORT ==========
 export default {
   authAPI,
   userAPI,

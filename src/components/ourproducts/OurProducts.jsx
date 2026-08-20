@@ -1,12 +1,14 @@
-import React from "react"
+import React, { useContext } from "react"
 import { useNavigate } from "react-router-dom"
-import { FaShoppingCart } from "react-icons/fa"
+import { FaShoppingCart, FaCheck } from "react-icons/fa"
 import SpecialOffers from "./SpecialOffers"
 import { useProducts } from "../../hooks/useProducts"
+import { CartContext } from "../../context/CartContext"
 
 const OurProducts = () => {
   const navigate = useNavigate()
   const { products, loading, error } = useProducts({ limit: 20 })
+  const { addToCart, isInCart } = useContext(CartContext) // ✅ NEW
 
   // ✅ Split into special (featured) and normal products
   const specialProducts = products.filter(p => p.isFeatured)
@@ -16,8 +18,8 @@ const OurProducts = () => {
     return (
       <section className="px-[8%] lg:px-[12%] my-20">
         <div className="flex items-center justify-center py-20">
-          <div className="w-10 h-10 border-4 border-blue-600 
-                          border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-blue-600
+            border-t-transparent rounded-full animate-spin" />
         </div>
       </section>
     )
@@ -36,8 +38,8 @@ const OurProducts = () => {
 
       {/* SECTION HEADER */}
       <div className="mb-10">
-        <span className="text-white font-semibold bg-blue-500 
-                         px-5 py-2 rounded-full text-sm">
+        <span className="text-white font-semibold bg-blue-500
+          px-5 py-2 rounded-full text-sm">
           Our Products
         </span>
         <h2 className="text-3xl font-black mt-4">Popular Products</h2>
@@ -54,8 +56,8 @@ const OurProducts = () => {
           {/* SPECIAL OFFER COLUMN */}
           {specialProducts.length > 0 && (
             <div className="lg:col-span-1">
-              <div className="bg-gradient-to-br from-red-500 to-orange-500 
-                              text-white rounded-2xl p-6 h-full flex flex-col shadow-xl">
+              <div className="bg-gradient-to-br from-red-500 to-orange-500
+                text-white rounded-2xl p-6 h-full flex flex-col shadow-xl">
                 <h3 className="text-xl ml-2 font-bold mb-6">
                   Special Offer Deal
                 </h3>
@@ -72,32 +74,31 @@ const OurProducts = () => {
           )}
 
           {/* PRODUCTS GRID */}
-          <div className={specialProducts.length > 0 
+          <div className={specialProducts.length > 0
             ? "lg:col-span-3" : "lg:col-span-4"}>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {normalProducts.map(product => (
                 <div
                   key={product._id}
                   className="bg-white border border-gray-100 rounded-xl p-5
-                  hover:-translate-y-1 hover:shadow-2xl transition duration-300
-                  flex flex-col justify-between group"
+                    hover:-translate-y-1 hover:shadow-2xl transition duration-300
+                    flex flex-col justify-between group"
                 >
                   {/* PRODUCT INFO */}
                   <div
-                    onClick={() => navigate(`/product/${product._id}`)}
+                    onClick={() => navigate(`/shop/${product._id}`)}
                     className="cursor-pointer"
                   >
-                    <p className="text-xs text-white font-semibold mb-2 
-                                  bg-red-500 px-3 py-1 rounded w-fit">
+                    <p className="text-xs text-white font-semibold mb-2
+                      bg-red-500 px-3 py-1 rounded w-fit">
                       {product.category}
                     </p>
 
-                    {/* ✅ Use imageUrl from MongoDB */}
                     <img
                       src={product.imageUrl || 'https://via.placeholder.com/200'}
                       alt={product.name}
-                      className="w-full h-45 object-contain mb-4 
-                                 group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-45 object-contain mb-4
+                        group-hover:scale-105 transition-transform duration-300"
                     />
 
                     <h4 className="text-sm font-semibold line-clamp-2 text-gray-700">
@@ -111,11 +112,17 @@ const OurProducts = () => {
                       ₦{Number(product.price).toLocaleString()}
                     </span>
                     <button
-                      className="bg-blue-600 text-white p-2 rounded-full 
-                                 hover:bg-blue-700 transition"
-                      onClick={() => console.log("Add to cart", product._id)}
+                      className={`p-2 rounded-full transition
+                        ${isInCart(product._id)
+                          ? "bg-green-500 text-white"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                        }`}
+                      onClick={() => addToCart(product)} // ✅ FIXED
                     >
-                      <FaShoppingCart size={14} />
+                      {isInCart(product._id)
+                        ? <FaCheck size={14} />
+                        : <FaShoppingCart size={14} />
+                      }
                     </button>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
-import mongoose from 'mongoose';
+// 75Backend/models/Product.js
+import mongoose from 'mongoose'
 
 const productSchema = new mongoose.Schema(
   {
@@ -22,28 +23,29 @@ const productSchema = new mongoose.Schema(
       min: 0,
       default: 0
     },
+    // ✅ Same categories as before - no duplication
     category: {
       type: String,
       required: [true, 'Category is required'],
       enum: [
-        'Laptops',
-        'Phones',
-        'Tablets',
-        'Accessories',
-        'Monitors',
-        'Storage',
-        'Networking',
-        'Gaming',
-        'Audio',
-        'Cameras',
-        'Printers',
-        'Software',
-        'Wearables',
-        'Smart Home',
-        'Components',
-        'Consoles',
+        'Laptops', 'Phones', 'Tablets', 'Accessories',
+        'Monitors', 'Storage', 'Networking', 'Gaming',
+        'Audio', 'Cameras', 'Printers', 'Software',
+        'Wearables', 'Smart Home', 'Components', 'Consoles',
         'Other'
       ]
+    },
+    // ✅ NEW - Condition separates UK Used from Brand New
+    condition: {
+      type: String,
+      enum: ['Brand New', 'UK Used', 'Refurbished'],
+      default: 'Brand New',
+    },
+    // ✅ NEW - Grade for used items
+    grade: {
+      type: String,
+      enum: ['Grade A', 'Grade B', 'Grade C', 'N/A'],
+      default: 'N/A',
     },
     brand: {
       type: String,
@@ -54,67 +56,27 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-
-    // ✅ NEW - Control how product appears on website
-    isFeatured: {
-      type: Boolean,
-      default: false
-    },
-    isTopPick: {
-      type: Boolean,
-      default: false
-    },
-    isBestSelling: {
-      type: Boolean,
-      default: false
-    },
-    isNewArrival: {
-      type: Boolean,
-      default: false
-    },
-    isDealOfDay: {
-      type: Boolean,
-      default: false
-    },
-
-    // ✅ NEW - Deal/Discount fields
-    discount: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-    offerEnds: {
-      type: Date,
-      default: null
-    },
-
-    // ✅ NEW - Sales tracking
-    sold: {
-      type: Number,
-      default: 0
-    },
-
-    // ✅ NEW - Image display size
+    isFeatured:    { type: Boolean, default: false },
+    isTopPick:     { type: Boolean, default: false },
+    isBestSelling: { type: Boolean, default: false },
+    isNewArrival:  { type: Boolean, default: false },
+    isDealOfDay:   { type: Boolean, default: false },
+    discount:      { type: Number,  default: 0, min: 0 },
+    offerEnds:     { type: Date,    default: null },
+    sold:          { type: Number,  default: 0 },
     imageSize: {
       type: String,
       enum: ['small', 'medium', 'large'],
       default: 'medium'
     },
-
-    rating: {
-      type: Number,
-      default: 0
-    },
-    numReviews: {
-      type: Number,
-      default: 0
-    },
+    rating:     { type: Number, default: 0 },
+    numReviews: { type: Number, default: 0 },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }
   },
   { timestamps: true }
-);
+)
 
-export const Product = mongoose.model('Product', productSchema);
+export const Product = mongoose.model('Product', productSchema)

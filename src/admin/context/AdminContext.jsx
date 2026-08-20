@@ -1,8 +1,14 @@
+// src/admin/context/AdminContext.jsx
 import React, { createContext, useState, useCallback } from "react";
 
+// ✅ Export context separately
 export const AdminContext = createContext();
 
-export const AdminProvider = ({ children }) => {
+// ✅ Fixed URL
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+// ✅ Export provider as default
+export function AdminProvider({ children }) {
   const [adminUser, setAdminUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -12,13 +18,12 @@ export const AdminProvider = ({ children }) => {
     setLoading(true);
     return new Promise(async (resolve, reject) => {
       try {
-        console.log(`🔐 Calling backend login for: ${email}`);
+        console.log(`🔐 Admin login attempt: ${email}`);
+        console.log(`🌐 Calling: ${API_URL}/auth/admin/login`);
 
-        const response = await fetch("http://localhost:5000/api/auth/login", {
+        const response = await fetch(`${API_URL}/auth/admin/login`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
 
@@ -29,7 +34,9 @@ export const AdminProvider = ({ children }) => {
           throw new Error(data.message || "Login failed");
         }
 
-        localStorage.setItem("adminToken", data.token);
+        if (data.user.role !== "admin") {
+          throw new Error("⛔ Access denied. Admin accounts only.");
+        }
 
         const user = {
           id: data.user.id,
@@ -38,19 +45,24 @@ export const AdminProvider = ({ children }) => {
           role: data.user.role,
           avatar:
             data.user.avatar ||
-            `https://ui-avatars.com/api/?name=${data.user.name}&background=0D8ABC&color=fff`,
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              data.user.name
+            )}&background=0D8ABC&color=fff`,
         };
 
+        localStorage.setItem("adminToken", data.token);
         localStorage.setItem("adminUser", JSON.stringify(user));
         setAdminUser(user);
-        setLoading(false);
 
-        console.log("✅ Login successful!");
+        console.log("✅ Admin login successful:", user.email);
         resolve(user);
       } catch (error) {
-        console.error("❌ Login error:", error.message);
-        setLoading(false);
+        console.error("❌ Admin login failed:", error.message);
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminUser");
         reject(error);
+      } finally {
+        setLoading(false);
       }
     });
   }, []);
@@ -59,27 +71,41 @@ export const AdminProvider = ({ children }) => {
     setAdminUser(null);
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
-    console.log("🚪 Logged out");
+    console.log("🚪 Admin logged out");
   }, []);
 
   React.useEffect(() => {
-    const user = localStorage.getItem("adminUser");
-    const token = localStorage.getItem("adminToken");
-
-    if (user && token) {
-      console.log("✅ Restoring session from localStorage");
+    const restoreSession = () => {
       try {
-        setAdminUser(JSON.parse(user));
-      } catch (e) {
-        console.error("❌ Failed to parse adminUser from localStorage");
+        const userRaw = localStorage.getItem("adminUser");
+        const token = localStorage.getItem("adminToken");
+
+        if (userRaw && token) {
+          const user = JSON.parse(userRaw);
+          if (user.role !== "admin") {
+            console.log(`⛔ Stored user is "${user.role}" - clearing`);
+            localStorage.removeItem("adminUser");
+            localStorage.removeItem("adminToken");
+            setAdminUser(null);
+          } else {
+            console.log("✅ Admin session restored:", user.email);
+            setAdminUser(user);
+          }
+        } else {
+          console.log("⚠️ No session found");
+          setAdminUser(null);
+        }
+      } catch (error) {
+        console.error("❌ Session restore failed:", error);
         localStorage.removeItem("adminUser");
         localStorage.removeItem("adminToken");
+        setAdminUser(null);
+      } finally {
+        setIsInitialized(true);
       }
-    } else {
-      console.log("⚠️ No session found in localStorage");
-    }
+    };
 
-    setIsInitialized(true);
+    restoreSession();
   }, []);
 
   const addNotification = useCallback((message, type = "info") => {
@@ -90,19 +116,19 @@ export const AdminProvider = ({ children }) => {
     }, 3000);
   }, []);
 
-  const value = {
-    adminUser,
-    loading,
-    isInitialized,
-    notifications,
-    login,
-    logout,
-    addNotification,
-  };
-
   return (
-    <AdminContext.Provider value={value}>
+    <AdminContext.Provider
+      value={{
+        adminUser,
+        loading,
+        isInitialized,
+        notifications,
+        login,
+        logout,
+        addNotification,
+      }}
+    >
       {children}
     </AdminContext.Provider>
   );
-};
+}

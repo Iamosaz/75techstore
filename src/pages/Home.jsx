@@ -13,11 +13,12 @@ import TopProduct from "../components/topproducts/TopProduct";
 import SwapDealLog from "../components/swapdealslog/SwapDealLog";
 import AboutSection from "../components/about/AboutsSection";
 import PreFooter from "../components/prefooter/PreFooter";
+import { FiTool } from "react-icons/fi";
 
 const quickServices = [
   { icon: <FaLaptop size={22} />, label: "Buy Gadgets", path: "/shop" },
   { icon: <FaTools size={22} />, label: "Repairs", path: "/repairs" },
-  { icon: <FaHome size={22} />, label: "Request Engineer", path: "/requestengineer" },
+  { icon: <FiTool size={22} />, label: "Request Engineer", path: "/requestengineer" },
   { icon: <FaRobot size={22} />, label: "Digital Services", path: "/digital-services" },
 ];
 

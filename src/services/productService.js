@@ -18,7 +18,7 @@ export const fetchFeaturedProducts = async () => {
 
 // ✅ Get products by category
 export const fetchProductsByCategory = async (category) => {
-  const { data } = await axios.get(`${API_sURL}/products`, {
+  const { data } = await axios.get(`${API_URL}/products`, { // ✅ FIXED - removed extra 's'
     params: { category, limit: 8 }
   });
   return data;

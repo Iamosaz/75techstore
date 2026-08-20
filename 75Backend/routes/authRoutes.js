@@ -2,7 +2,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { User } from "../models/User.js";
+import User from "../models/User.js";
 
 const router = express.Router();
 
@@ -26,7 +26,6 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // ✅ Hash password manually
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
@@ -59,7 +58,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ─── LOGIN ────────────────────────────────────────────────────────
+// ─── CUSTOMER LOGIN ───────────────────────────────────────────────
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -79,7 +78,14 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // ✅ Compare password
+    // 🚨 Block admins from customer login
+    if (user.role === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Please use the admin login panel.",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       return res.status(401).json({
@@ -88,11 +94,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // ✅ Update lastLogin using findByIdAndUpdate
-    // NOT user.save() - that triggered double hashing!
-    await User.findByIdAndUpdate(user._id, {
-      lastLogin: new Date()
-    });
+    await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
 
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
@@ -112,6 +114,70 @@ router.post("/login", async (req, res) => {
         avatar: user.avatar || "",
         phone: user.phone || "",
         address: user.address || "",
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// ─── ADMIN LOGIN ✅ NEW ───────────────────────────────────────────
+router.post("/admin/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    // 🚨 Block customers from admin login
+    if (user.role !== "admin") {
+      console.log(`⛔ Blocked: ${email} | role: ${user.role}`);
+      return res.status(403).json({
+        success: false,
+        message: "⛔ Access denied. Admin accounts only.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    console.log(`✅ Admin login: ${user.email}`);
+
+    res.json({
+      success: true,
+      message: "Admin login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar || "",
       },
     });
   } catch (error) {

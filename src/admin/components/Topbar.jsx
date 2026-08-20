@@ -17,7 +17,6 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // ✅ Close dropdowns when clicking outside
   const notifRef = useRef(null);
   const userRef = useRef(null);
 
@@ -39,7 +38,6 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
     navigate("/admin/login");
   };
 
-  // ✅ Get initials for avatar
   const getInitials = (name) => {
     if (!name) return "A";
     return name
@@ -53,7 +51,7 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-3 flex justify-between items-center sticky top-0 z-40">
 
-      {/* ─── Left Side - Only Hamburger ──────────────────────── */}
+      {/* Left Side */}
       <div className="flex items-center">
         <button
           onClick={toggleSidebar}
@@ -64,10 +62,10 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
         </button>
       </div>
 
-      {/* ─── Right Side ──────────────────────────────────────── */}
+      {/* Right Side */}
       <div className="flex items-center gap-3">
 
-        {/* ─── Notifications ─────────────────────────────────── */}
+        {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => {
@@ -82,7 +80,6 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
             )}
           </button>
 
-          {/* Notification Dropdown */}
           {showNotifications && (
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
@@ -114,13 +111,8 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
                   ))
                 ) : (
                   <div className="p-8 text-center">
-                    <FiBell
-                      size={24}
-                      className="text-gray-300 mx-auto mb-2"
-                    />
-                    <p className="text-sm text-gray-400">
-                      No notifications yet
-                    </p>
+                    <FiBell size={24} className="text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400">No notifications yet</p>
                   </div>
                 )}
               </div>
@@ -128,10 +120,10 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
           )}
         </div>
 
-        {/* ─── Divider ───────────────────────────────────────── */}
+        {/* Divider */}
         <div className="w-px h-8 bg-gray-200" />
 
-        {/* ─── User Menu ─────────────────────────────────────── */}
+        {/* User Menu */}
         <div className="relative" ref={userRef}>
           <button
             onClick={() => {
@@ -140,7 +132,6 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
             }}
             className="flex items-center gap-2.5 p-1.5 pr-3 hover:bg-gray-100 rounded-xl transition-colors"
           >
-            {/* Avatar */}
             {adminUser?.avatar ? (
               <img
                 src={adminUser.avatar}
@@ -153,13 +144,10 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
               </div>
             )}
 
-            {/* Name */}
+            {/* ✅ Only show name - removed role */}
             <div className="hidden md:block text-left">
               <p className="text-sm font-semibold text-gray-800 leading-tight">
                 {adminUser?.name || "Admin"}
-              </p>
-              <p className="text-xs text-gray-400 capitalize">
-                {adminUser?.role || "admin"}
               </p>
             </div>
 
@@ -171,10 +159,9 @@ export default function Topbar({ toggleSidebar, sidebarOpen }) {
             />
           </button>
 
-          {/* User Dropdown */}
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-              {/* User Info */}
+              {/* ✅ User Info - removed role, just name and email */}
               <div className="p-4 border-b border-gray-100 bg-gray-50/50">
                 <p className="text-sm font-semibold text-gray-900">
                   {adminUser?.name || "Admin"}

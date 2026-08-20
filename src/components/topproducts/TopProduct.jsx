@@ -3,7 +3,8 @@ import DealDayCard from "./DealDayCard"
 import TopProductCard from "./TopProductCard"
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// ✅ FIXED: Hardcoded to guarantee it includes /api
+const API_URL = 'http://localhost:5000/api';
 
 const TopProduct = () => {
   const [activeTab, setActiveTab] = useState("top")
@@ -53,11 +54,9 @@ const TopProduct = () => {
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4">
 
-        <div className="flex flex-col sm:flex-row sm:items-center
-                        sm:justify-between mb-10 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between -10 gap-4">
           <div>
-            <p className="text-blue-600 text-sm font-semibold
-                          uppercase tracking-widest mb-1">
+            <p className="text-blue-600 text-sm font-semibold uppercase tracking-widest mb-1">
               Featured
             </p>
             <h2 className="text-3xl font-extrabold text-gray-900">
@@ -65,14 +64,13 @@ const TopProduct = () => {
             </h2>
           </div>
 
-          <div className="flex gap-2 bg-white border border-gray-200
-                          rounded-full p-1 shadow-sm w-fit">
+          <div className="flex gap-2 bg-white border border-gray-200 rounded-full p-1 shadow-sm w-fit">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium
-                  transition-all duration-300 ₦{
+                // ✅ FIXED: Changed ₦{ to ${
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
                   activeTab === tab.key
                     ? "bg-blue-600 text-white shadow"
                     : "text-gray-500 hover:text-gray-800"
@@ -86,8 +84,7 @@ const TopProduct = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-10 h-10 border-4 border-blue-600
-                            border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -99,11 +96,11 @@ const TopProduct = () => {
                   <p>No products yet. Add from admin panel!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-2
-                                md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                   {getProducts().map((product, index) => (
                     <TopProductCard
-                      key={`₦{activeTab}-${index}`}
+                      // ✅ FIXED: Changed ₦{ to ${
+                      key={`${activeTab}-${index}`}
                       product={product}
                     />
                   ))}

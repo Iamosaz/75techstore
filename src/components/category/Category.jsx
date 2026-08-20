@@ -9,7 +9,7 @@ const Category = () => {
 
   const categories = [
     {
-      name: 'Gadgets',
+      name: 'Smartwatches',
       category: 'Accessories',
       image: gadget,
       bgClass: 'bg-gradient-to-br from-red-600 to-red-500',

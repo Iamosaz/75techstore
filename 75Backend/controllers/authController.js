@@ -1,6 +1,7 @@
+// controllers/authController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { User } from "../models/User.js";
+import User from "../models/User.js";
 
 // ========== LOGIN ==========
 export const login = async (req, res) => {
@@ -21,6 +22,7 @@ export const login = async (req, res) => {
 
     console.log("✅ User found:", user.email, "| Role:", user.role);
 
+    // ✅ RESTORED — back to passwordHash
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       console.log("❌ Password does not match");
@@ -33,11 +35,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-      },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -47,12 +45,11 @@ export const login = async (req, res) => {
     return res.status(200).json({
       token,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar:
-          user.avatar ||
+        id:     user._id,
+        name:   user.name,
+        email:  user.email,
+        role:   user.role,
+        avatar: user.avatar ||
           `https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`,
       },
     });
@@ -76,9 +73,9 @@ export const logout = async (req, res) => {
 // ========== GET PROFILE ==========
 export const getProfile = async (req, res) => {
   try {
-    // ✅ Fixed - use req.user._id
     console.log("👤 Fetching profile for:", req.user?._id);
 
+    // ✅ RESTORED — back to -passwordHash
     const user = await User.findById(req.user._id).select("-passwordHash");
 
     if (!user) {
@@ -87,12 +84,11 @@ export const getProfile = async (req, res) => {
 
     return res.status(200).json({
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar:
-          user.avatar ||
+        id:        user._id,
+        name:      user.name,
+        email:     user.email,
+        role:      user.role,
+        avatar:    user.avatar ||
           `https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`,
         createdAt: user.createdAt,
       },
@@ -107,9 +103,9 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { name, email } = req.body;
-    // ✅ Fixed - use req.user._id
     console.log("✏️ Updating profile for:", req.user?._id);
 
+    // ✅ RESTORED — back to -passwordHash
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, email },
@@ -123,10 +119,10 @@ export const updateProfile = async (req, res) => {
     return res.status(200).json({
       message: "Profile updated successfully",
       user: {
-        id: updatedUser._id,
-        name: updatedUser.name,
+        id:    updatedUser._id,
+        name:  updatedUser.name,
         email: updatedUser.email,
-        role: updatedUser.role,
+        role:  updatedUser.role,
       },
     });
   } catch (error) {
@@ -139,7 +135,6 @@ export const updateProfile = async (req, res) => {
 export const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    // ✅ Fixed - use req.user._id
     console.log("🔑 Change password for:", req.user?._id);
 
     if (!currentPassword || !newPassword) {
@@ -148,26 +143,25 @@ export const changePassword = async (req, res) => {
 
     if (newPassword.length < 6) {
       return res.status(400).json({
-        message: "New password must be at least 6 characters"
+        message: "New password must be at least 6 characters",
       });
     }
 
     const user = await User.findById(req.user._id);
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // ✅ RESTORED — back to passwordHash
     const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ message: "Current password is incorrect" });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-    await User.findByIdAndUpdate(req.user._id, {
-      passwordHash: hashedPassword,
-    });
+    // ✅ RESTORED — hash manually and save to passwordHash
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    await user.save();
 
     console.log("✅ Password changed successfully");
     return res.status(200).json({ message: "Password changed successfully" });

@@ -9,7 +9,6 @@ export default function ProtectedRoute() {
   const { adminUser, isInitialized } = useAdmin();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // ✅ Wait for localStorage session to restore first
   if (!isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -21,30 +20,29 @@ export default function ProtectedRoute() {
     );
   }
 
-  // ✅ Only redirect after session is restored
+  // ✅ No user
   if (!adminUser) {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // ✅ Admin is logged in - show layout
+  // ✅ Has user but not admin role
+  if (adminUser.role !== "admin") {
+    console.log(`⛔ Role is "${adminUser.role}" - access denied`);
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+    return <Navigate to="/admin/login" replace />;
+  }
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar - always visible */}
       <Sidebar isOpen={sidebarOpen} />
-
-      {/* Main Content */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-20"
-        }`}
-      >
-        {/* Topbar */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${
+        sidebarOpen ? "ml-64" : "ml-20"
+      }`}>
         <Topbar
           toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           sidebarOpen={sidebarOpen}
         />
-
-        {/* Page Content - only this changes */}
         <main className="flex-1 overflow-auto bg-gray-50">
           <Outlet />
         </main>

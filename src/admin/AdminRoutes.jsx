@@ -11,7 +11,12 @@ import Orders from "./pages/Orders";
 import Settings from "./pages/Settings";
 import Blog from "./pages/Blog";
 import ChatbotManager from "./pages/ChatbotManager";
-import Analytics from "./pages/Analytics"; // ✅ ADD THIS
+import Analytics from "./pages/Analytics"; 
+import EngineerRequests from './pages/EngineerRequests'
+import AdminRepairs from './pages/AdminRepairs'
+import AdminDigitalServices from "./pages/AdminDigitalServices";
+import AdminSwapDeals from './pages/AdminSwapDeals'
+import AdminMemberships from "./pages/AdminMemberships";
 
 export default function AdminRoutes() {
   return (
@@ -23,10 +28,15 @@ export default function AdminRoutes() {
         <Route path="users" element={<Users />} />
         <Route path="products" element={<Products />} />
         <Route path="orders" element={<Orders />} />
-        <Route path="analytics" element={<Analytics />} /> {/* ✅ Fixed */}
+        <Route path="analytics" element={<Analytics />} />
         <Route path="settings" element={<Settings />} />
         <Route path="blog" element={<Blog />} />
         <Route path="chatbot" element={<ChatbotManager />} />
+        <Route path="engineer-requests" element={<EngineerRequests />} />
+        <Route path="repairs" element={<AdminRepairs />} />
+        <Route path="digital-services" element={<AdminDigitalServices />} />
+        <Route path="swap-deals" element={<AdminSwapDeals />} />
+        <Route path="memberships" element={<AdminMemberships />} />
       </Route>
 
       <Route path="/" element={<Navigate to="dashboard" replace />} />

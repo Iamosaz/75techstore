@@ -18,9 +18,10 @@ import apple from "../../assets/Brands/apple.png"
 import sony from "../../assets/Brands/sony.png"
 import toshiba from "../../assets/Brands/toshiba.png"
 import Techstore75 from "../../assets/Brands/75logo.png"
+import new75logo from "../../assets/Brands/75TechstoreLOGO.png"
 
 const LogoBrand = () => {
-   const  brands = [msi, samsung, Techstore75, hp, dell, nvidia, lenovo, acer, toshiba, sony, apple]
+   const  brands = [msi, samsung, Techstore75, hp, dell, nvidia, lenovo, acer, toshiba, sony, apple, new75logo]
   return (
   <section className='py-10 bg-gray-50'>
      <h2 className='text-center text-3xl font-bold mb-10'>
