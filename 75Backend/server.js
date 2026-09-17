@@ -27,7 +27,7 @@ import {
   blockMaliciousAgents,
   ipBlacklistMiddleware,
   requestSizeLimiter,
-} from "./middleware/security.js";
+} from "./middleware/Security.js";
 import { auditLogger, securityLog } from "./middleware/securityLogger.js";
 
 // ── Routes ───────────────────────────────────────────────
