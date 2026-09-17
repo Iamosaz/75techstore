@@ -249,7 +249,7 @@ const Navbar = () => {
                 cursor-pointer p-0'
               aria-label='Go to homepage'>
               <img src={logo} alt='75techstore Logo'
-                className='h-14 w-auto object-contain' />
+                className='h-28 w-auto object-contain' />
             </button>
 
             {/* DESKTOP SEARCH */}

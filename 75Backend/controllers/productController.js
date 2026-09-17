@@ -2,9 +2,6 @@
 import { Product } from '../models/Product.js'
 
 // ✅ GET ALL PRODUCTS (search + filter + condition + pagination)
-// 75Backend/controllers/productController.js
-// ── Update getAllProducts ──
-
 export const getAllProducts = async (req, res) => {
   try {
     const {
@@ -21,7 +18,6 @@ export const getAllProducts = async (req, res) => {
       query.category = category
     }
 
-    // ✅ Condition filter
     if (condition && condition !== '') {
       query.condition = condition
     }
@@ -77,6 +73,7 @@ export const createProduct = async (req, res) => {
       category,
       brand,
       imageUrl,
+      images,        // 👈 1. ADDED: Destructure images array
       condition,
       grade,
       isFeatured,
@@ -96,25 +93,27 @@ export const createProduct = async (req, res) => {
       stock,
       category,
       brand,
-      imageUrl,
+      imageUrl:     imageUrl     || '',
+      images:       Array.isArray(images) ? images.filter(Boolean) : [], // 👈 2. ADDED: Save multi-angle images
       condition:    condition    || 'Brand New',
       grade:        grade        || 'N/A',
-      isFeatured:   isFeatured   || false,
-      isTopPick:    isTopPick    || false,
-      isBestSelling:isBestSelling|| false,
-      isNewArrival: isNewArrival || false,
-      isDealOfDay:  isDealOfDay  || false,
-      discount:     discount     || 0,
+      isFeatured:   !!isFeatured,
+      isTopPick:    !!isTopPick,
+      isBestSelling:!!isBestSelling,
+      isNewArrival: !!isNewArrival,
+      isDealOfDay:  !!isDealOfDay,
+      discount:     Number(discount) || 0,
       offerEnds:    offerEnds    || null,
       imageSize:    imageSize    || 'medium',
-      createdBy:    req.user._id,
+      createdBy:    req.user?._id || null, // 👈 3. Safe fallback prevents 500 error
     })
 
     const createdProduct = await product.save()
     res.status(201).json(createdProduct)
 
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    console.error('❌ Create Product Error:', error)
+    res.status(500).json({ message: error.message || 'Failed to create product' })
   }
 }
 
@@ -128,7 +127,8 @@ export const updateProduct = async (req, res) => {
 
     const fields = [
       'name', 'description', 'price', 'stock', 'category',
-      'brand', 'imageUrl', 'condition', 'grade',
+      'brand', 'imageUrl', 'images', // 👈 4. ADDED: 'images' now allowed in updates!
+      'condition', 'grade',
       'isFeatured', 'isTopPick', 'isBestSelling',
       'isNewArrival', 'isDealOfDay', 'discount',
       'offerEnds', 'imageSize', 'rating', 'numReviews'
@@ -136,7 +136,11 @@ export const updateProduct = async (req, res) => {
 
     fields.forEach(field => {
       if (req.body[field] !== undefined) {
-        product[field] = req.body[field]
+        if (field === 'images' && Array.isArray(req.body.images)) {
+          product.images = req.body.images.filter(Boolean)
+        } else {
+          product[field] = req.body[field]
+        }
       }
     })
 
@@ -144,7 +148,8 @@ export const updateProduct = async (req, res) => {
     res.json(updatedProduct)
 
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    console.error('❌ Update Product Error:', error)
+    res.status(500).json({ message: error.message || 'Failed to update product' })
   }
 }
 

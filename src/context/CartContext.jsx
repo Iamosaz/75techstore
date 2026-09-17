@@ -41,7 +41,7 @@ export const CartProvider = ({ children }) => {
                 ...item,
                 quantity: Math.min(
                   item.quantity + quantity,
-                  product.stock
+                  product.stock || 99
                 )
               }
             : item
@@ -53,10 +53,10 @@ export const CartProvider = ({ children }) => {
           _id: product._id,
           name: product.name,
           price: product.price,
-          imageUrl: product.imageUrl,
+          imageUrl: product.imageUrl || product.images?.[0] || product.image,
           condition: product.condition,
           grade: product.grade,
-          stock: product.stock,
+          stock: product.stock || 10,
           quantity
         }
       ]
@@ -77,7 +77,7 @@ export const CartProvider = ({ children }) => {
     setCartItems((prev) =>
       prev.map((item) =>
         item._id === productId
-          ? { ...item, quantity: Math.min(quantity, item.stock) }
+          ? { ...item, quantity: Math.min(quantity, item.stock || 99) }
           : item
       )
     )
@@ -124,4 +124,13 @@ export const CartProvider = ({ children }) => {
       {children}
     </CartContext.Provider>
   )
+}
+
+// ✅ Added export hook (fixes the error across all components)
+export const useCart = () => {
+  const context = useContext(CartContext)
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider')
+  }
+  return context
 }

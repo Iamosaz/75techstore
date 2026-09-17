@@ -17,6 +17,8 @@ import AdminRepairs from './pages/AdminRepairs'
 import AdminDigitalServices from "./pages/AdminDigitalServices";
 import AdminSwapDeals from './pages/AdminSwapDeals'
 import AdminMemberships from "./pages/AdminMemberships";
+import SeasonalSettings from "./pages/SeasonalSettings";
+import SeasonalProductManager from "./pages/SeasonalProductManager";
 
 export default function AdminRoutes() {
   return (
@@ -37,6 +39,8 @@ export default function AdminRoutes() {
         <Route path="digital-services" element={<AdminDigitalServices />} />
         <Route path="swap-deals" element={<AdminSwapDeals />} />
         <Route path="memberships" element={<AdminMemberships />} />
+        <Route path="seasonal" element={<SeasonalSettings />} />
+        <Route path="seasonal-products" element={<SeasonalProductManager />} />
       </Route>
 
       <Route path="/" element={<Navigate to="dashboard" replace />} />

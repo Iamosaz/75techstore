@@ -1,24 +1,34 @@
+// 75Backend/routes/chatbotRoutes.js
 import express from 'express';
 import {
-  chat,
-  getChatbotConfig,
-  updateChatbotConfig,
-  generateBlogPost,
-  getChatAnalytics
+  getConfig,
+  updateConfig,
+  sendMessage,
+  getAnalytics,
+  getLogs,
+  deleteLog,
+  resolveLog,
+  generateBlog
 } from '../controllers/chatbotController.js';
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// ✅ Public - chat endpoint
-router.post('/chat', chat);
+// ═══════════════════════════════════════════════════
+// 🌍 PUBLIC ROUTES (Customer Chat Widget)
+// ═══════════════════════════════════════════════════
+router.post('/message', sendMessage);
+router.get('/config', getConfig); // ✅ MUST BE PUBLIC so customer widget loads greeting & bot name
 
-// ✅ Public - get config (for frontend)
-router.get('/config', getChatbotConfig);
-
-// ✅ Admin only
-router.put('/config', protect, adminOnly, updateChatbotConfig);
-router.post('/generate-blog', protect, adminOnly, generateBlogPost);
-router.get('/analytics', protect, adminOnly, getChatAnalytics);
+// ═══════════════════════════════════════════════════
+// 🔒 ADMIN PROTECTED ROUTES
+// ═══════════════════════════════════════════════════
+router.put('/config', protect, admin, updateConfig); // 🔒 Only admin can update settings
+router.get('/analytics', protect, admin, getAnalytics);
+router.get('/logs', protect, admin, getLogs);
+router.delete('/logs/:id', protect, admin, deleteLog);
+router.patch('/logs/:id/resolve', protect, admin, resolveLog);
+router.post('/generate-blog', protect, admin, generateBlog);
 
 export default router;

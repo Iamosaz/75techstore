@@ -3,7 +3,6 @@ import DealDayCard from "./DealDayCard"
 import TopProductCard from "./TopProductCard"
 import axios from 'axios'
 
-// ✅ FIXED: Hardcoded to guarantee it includes /api
 const API_URL = 'http://localhost:5000/api';
 
 const TopProduct = () => {
@@ -51,29 +50,30 @@ const TopProduct = () => {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="py-6 sm:py-8 bg-gray-100">
+      <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6">
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between -10 gap-4">
+        {/* Header Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3 bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200">
           <div>
-            <p className="text-blue-600 text-sm font-semibold uppercase tracking-widest mb-1">
+            <p className="text-orange-500 text-xs font-bold uppercase tracking-wider">
               Featured
             </p>
-            <h2 className="text-3xl font-extrabold text-gray-900">
+            <h2 className="text-xl sm:text-2xl font-black text-gray-900">
               Top Products
             </h2>
           </div>
 
-          <div className="flex gap-2 bg-white border border-gray-200 rounded-full p-1 shadow-sm w-fit">
+          {/* Filter Tabs */}
+          <div className="flex gap-1.5 bg-gray-100 border border-gray-200 rounded-lg p-1 w-fit">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                // ✅ FIXED: Changed ₦{ to ${
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition-all duration-200 ${
                   activeTab === tab.key
-                    ? "bg-blue-600 text-white shadow"
-                    : "text-gray-500 hover:text-gray-800"
+                    ? "bg-orange-500 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
                 }`}
               >
                 {tab.label}
@@ -83,24 +83,25 @@ const TopProduct = () => {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="flex items-center justify-center py-24 bg-white rounded-xl border border-gray-200">
+            <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          /* ✅ FIXED: Added 'items-start' to prevent sidebar from stretching */
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
 
+            {/* Products Column */}
             <div className="lg:col-span-3">
               {getProducts().length === 0 ? (
-                <div className="text-center py-20 text-gray-400">
-                  <p className="text-4xl mb-4">📦</p>
-                  <p>No products yet. Add from admin panel!</p>
+                <div className="text-center py-20 bg-white rounded-xl border border-gray-200 text-gray-400">
+                  <p className="text-4xl mb-2">📦</p>
+                  <p className="text-sm font-medium">No products found in this category.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {getProducts().map((product, index) => (
                     <TopProductCard
-                      // ✅ FIXED: Changed ₦{ to ${
-                      key={`${activeTab}-${index}`}
+                      key={product._id || `${activeTab}-${index}`}
                       product={product}
                     />
                   ))}
@@ -108,9 +109,11 @@ const TopProduct = () => {
               )}
             </div>
 
-            <div className="lg:col-span-1">
+            {/* ✅ FIXED: Added 'self-start' and 'sticky top-4' */}
+            <div className="lg:col-span-1 self-start lg:sticky lg:top-4">
               <DealDayCard deals={deals} />
             </div>
+
           </div>
         )}
       </div>

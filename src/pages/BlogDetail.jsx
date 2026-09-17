@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import SEO from '../components/SEO'
+import { BlogAutoSEO } from '../components/AutoSEO' // ✅ Added
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -23,16 +23,13 @@ const BlogDetail = () => {
 
         console.log('🔍 Fetching blog with id/slug:', id)
 
-        // ✅ Try slug endpoint first, then fallback to id
         let blogData = null
 
         try {
-          // Try slug first
           const slugRes = await axios.get(`${API_URL}/blogs/slug/${id}`)
           blogData = slugRes.data
           console.log('✅ Found by slug:', blogData.title)
         } catch {
-          // Fallback to _id
           console.log('⚠️ Slug not found, trying _id...')
           try {
             const idRes = await axios.get(`${API_URL}/blogs/${id}`)
@@ -47,7 +44,6 @@ const BlogDetail = () => {
 
         setBlog(blogData)
 
-        // ✅ Fetch related blogs
         try {
           const related = await axios.get(`${API_URL}/blogs`, {
             params: { category: blogData.category, limit: 4 }
@@ -56,7 +52,6 @@ const BlogDetail = () => {
             related.data.blogs?.filter(b => b._id !== blogData._id).slice(0, 3) || []
           )
         } catch {
-          // Related blogs failing is not critical
           console.log('⚠️ Could not load related blogs')
         }
 
@@ -82,7 +77,6 @@ const BlogDetail = () => {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // ✅ Navigate related blog correctly
   const handleRelatedClick = (relatedBlog) => {
     const path = relatedBlog.slug
       ? `/blog/${relatedBlog.slug}`
@@ -91,7 +85,6 @@ const BlogDetail = () => {
     window.scrollTo(0, 0)
   }
 
-  // Loading
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -114,7 +107,6 @@ const BlogDetail = () => {
     )
   }
 
-  // Error / Not Found
   if (error || !blog) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -140,15 +132,8 @@ const BlogDetail = () => {
 
   return (
     <>
-      {/* SEO */}
-      <SEO
-        title={blog.metaTitle || blog.title}
-        description={blog.metaDescription || blog.excerpt}
-        image={blog.coverImage}
-        url={`/blog/${blog.slug || blog._id}`}
-        type="article"
-        keywords={blog.tags?.join(', ')}
-      />
+      {/* ✅ Auto-injects Blog Article schema, Author/Publisher schema, FAQ schema, Breadcrumb, Open Graph, Twitter */}
+      <BlogAutoSEO blog={blog} />
 
       <div className="min-h-screen bg-gray-50">
 
@@ -175,11 +160,9 @@ const BlogDetail = () => {
 
         <div className="max-w-4xl mx-auto px-4 py-8">
 
-          {/* Article */}
           <article className="bg-white rounded-2xl overflow-hidden
                               shadow-sm border border-gray-100 mb-8">
 
-            {/* Cover Image */}
             {blog.coverImage && (
               <div className="h-64 sm:h-96 overflow-hidden">
                 <img
@@ -193,7 +176,6 @@ const BlogDetail = () => {
 
             <div className="p-6 sm:p-10">
 
-              {/* Category + Meta */}
               <div className="flex flex-wrap items-center gap-3 mb-5">
                 <span className="bg-blue-600 text-white text-xs
                                  font-semibold px-3 py-1.5 rounded-full">
@@ -207,17 +189,14 @@ const BlogDetail = () => {
                 </span>
               </div>
 
-              {/* Title */}
               <h1 className="text-2xl sm:text-4xl font-extrabold
                              text-gray-900 mb-6 leading-tight">
                 {blog.title}
               </h1>
 
-              {/* Author + Date + Share */}
               <div className="flex flex-wrap items-center justify-between
                               gap-4 pb-6 mb-6 border-b border-gray-100">
 
-                {/* Author */}
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 bg-gradient-to-br from-blue-500
                                   to-blue-700 rounded-full flex items-center
@@ -238,7 +217,6 @@ const BlogDetail = () => {
                   </div>
                 </div>
 
-                {/* Share Buttons */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleWhatsAppShare}
@@ -261,7 +239,6 @@ const BlogDetail = () => {
                 </div>
               </div>
 
-              {/* ✅ Blog Content - with proper HTML rendering and styling */}
               <div
                 className="
                   blog-content
@@ -287,7 +264,6 @@ const BlogDetail = () => {
                 dangerouslySetInnerHTML={{ __html: blog.content }}
               />
 
-              {/* Tags */}
               {blog.tags?.length > 0 && (
                 <div className="mt-10 pt-6 border-t border-gray-100">
                   <p className="text-sm font-bold text-gray-700 mb-3">Tags:</p>
@@ -304,7 +280,6 @@ const BlogDetail = () => {
                 </div>
               )}
 
-              {/* CTA Banner */}
               <div className="mt-10 bg-gradient-to-r from-blue-600 to-blue-800
                               rounded-2xl p-6 text-white text-center">
                 <p className="text-lg font-bold mb-2">
@@ -335,7 +310,6 @@ const BlogDetail = () => {
             </div>
           </article>
 
-          {/* Related Posts */}
           {relatedBlogs.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
@@ -383,7 +357,6 @@ const BlogDetail = () => {
             </div>
           )}
 
-          {/* Back Button */}
           <div className="text-center">
             <button
               onClick={() => navigate('/blog')}

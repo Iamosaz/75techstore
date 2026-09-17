@@ -23,7 +23,6 @@ const productSchema = new mongoose.Schema(
       min: 0,
       default: 0
     },
-    // ✅ Same categories as before - no duplication
     category: {
       type: String,
       required: [true, 'Category is required'],
@@ -35,26 +34,30 @@ const productSchema = new mongoose.Schema(
         'Other'
       ]
     },
-    // ✅ NEW - Condition separates UK Used from Brand New
+    // ✅ UPDATED - Added 'GoodDeals' to enum to prevent DB validation errors
     condition: {
       type: String,
-      enum: ['Brand New', 'UK Used', 'Refurbished'],
+      enum: ['Brand New', 'UK Used', 'Refurbished', 'GoodDeals'],
       default: 'Brand New',
-    },
-    // ✅ NEW - Grade for used items
-    grade: {
-      type: String,
-      enum: ['Grade A', 'Grade B', 'Grade C', 'N/A'],
-      default: 'N/A',
     },
     brand: {
       type: String,
       required: [true, 'Brand is required'],
       trim: true
     },
+    grade: {
+      type: String,
+      enum: ['Grade A', 'Grade B', 'Grade C', 'N/A'],
+      default: 'N/A',
+    },
     imageUrl: {
       type: String,
       default: ''
+    },
+    // ✅ NEW - Array of extra image URLs to show different angles of the product
+    images: {
+      type: [String],
+      default: []
     },
     isFeatured:    { type: Boolean, default: false },
     isTopPick:     { type: Boolean, default: false },

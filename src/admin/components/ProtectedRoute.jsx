@@ -1,4 +1,5 @@
 // src/admin/components/ProtectedRoute.jsx
+// ✅ NO CHANGES NEEDED — this is your admin auth guard, not customer-facing
 import React, { useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAdmin } from "../hooks/useAdmin";
@@ -20,12 +21,10 @@ export default function ProtectedRoute() {
     );
   }
 
-  // ✅ No user
   if (!adminUser) {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // ✅ Has user but not admin role
   if (adminUser.role !== "admin") {
     console.log(`⛔ Role is "${adminUser.role}" - access denied`);
     localStorage.removeItem("adminToken");

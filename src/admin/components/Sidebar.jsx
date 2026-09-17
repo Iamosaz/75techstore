@@ -16,6 +16,7 @@ import {
   FiGlobe,
   FiCpu,
   FiAward,
+  FiGift, // ✅ Added for Seasonal & Festive
 } from "react-icons/fi";
 import { useAdmin } from "../hooks/useAdmin";
 
@@ -26,19 +27,21 @@ export default function Sidebar({ isOpen }) {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { path: "/admin/dashboard",         icon: FiHome,        label: "Dashboard"         },
-    { path: "/admin/users",             icon: FiUsers,       label: "Users"             },
-    { path: "/admin/products",          icon: FiPackage,     label: "Products"          },
-    { path: "/admin/orders",            icon: FiShoppingCart,label: "Orders"            },
-    { path: "/admin/memberships",       icon: FiAward,       label: "VIP Memberships"   },
-    { path: "/admin/engineer-requests", icon: FiTool,        label: "Engineer Requests" },
-    { path: "/admin/repairs",           icon: FiCpu,         label: "Repairs"           },
-    { path: "/admin/swap-deals",        icon: FaExchangeAlt, label: "Swap Deals"        },
-    { path: "/admin/digital-services",  icon: FiGlobe,       label: "Digital Services"  },
-    { path: "/admin/analytics",         icon: FiBarChart2,   label: "Analytics"         },
-    { path: "/admin/blog",              icon: FiFileText,    label: "Blog"              },
-    { path: "/admin/chatbot",           icon: FiMessageSquare,label: "Chatbot"          },
-    { path: "/admin/settings",          icon: FiSettings,    label: "Settings"          },
+    { path: "/admin/dashboard",         icon: FiHome,         label: "Dashboard"          },
+    { path: "/admin/users",             icon: FiUsers,        label: "Users"              },
+    { path: "/admin/products",          icon: FiPackage,      label: "Products"           },
+    { path: "/admin/orders",            icon: FiShoppingCart, label: "Orders"             },
+    { path: "/admin/memberships",       icon: FiAward,        label: "VIP Memberships"    },
+    { path: "/admin/seasonal",          icon: FiGift,         label: "Seasonal & Festive" }, // ✅ Added here
+    { path: "/admin/engineer-requests", icon: FiTool,         label: "Engineer Requests"  },
+    { path: "/admin/repairs",           icon: FiCpu,          label: "Repairs"            },
+    { path: "/admin/swap-deals",        icon: FaExchangeAlt,  label: "Swap Deals"         },
+    { path: "/admin/digital-services",  icon: FiGlobe,        label: "Digital Services"   },
+    { path: "/admin/analytics",         icon: FiBarChart2,    label: "Analytics"          },
+    { path: "/admin/blog",              icon: FiFileText,     label: "Blog"               },
+    { path: "/admin/chatbot",           icon: FiMessageSquare,label: "Chatbot"           },
+    { path: "/admin/settings",          icon: FiSettings,     label: "Settings"           },
+    { path: "/admin/seasonal-products", icon: FiPackage, label: "Seasonal Gadgets" },
   ];
 
   const handleLogout = () => {

@@ -12,23 +12,70 @@ import {
 } from '../controllers/blogController.js';
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
+// Optional helper for Google indexing (with fallback safety)
+let notifyGoogleIndexing = null;
+try {
+  const indexHelper = await import('../utils/googleIndexHelper.js');
+  notifyGoogleIndexing = indexHelper.notifyGoogleIndexing;
+} catch (e) {
+  // If helper is missing or not configured, continue without breaking
+  notifyGoogleIndexing = () => {};
+}
+
 const router = express.Router();
 
-// ✅ CRITICAL: /admin/all MUST be BEFORE /:id
-// If /:id comes first, Express will think "admin" is an ID!
+// Helper wrapper to notify Google after creating or updating
+const createBlogWithIndexing = async (req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (data) => {
+    try {
+      if (notifyGoogleIndexing) {
+        if (data && (data.slug || data._id)) {
+          notifyGoogleIndexing(`/blog/${data.slug || data._id}`);
+        } else if (data && data.blog) {
+          notifyGoogleIndexing(`/blog/${data.blog.slug || data.blog._id}`);
+        }
+      }
+    } catch (err) {
+      console.warn('Google index notification skipped:', err.message);
+    }
+    return originalJson(data);
+  };
+  return createBlog(req, res, next);
+};
 
-// ─── Admin Routes ─────────────────────────────────────────────────
+const updateBlogWithIndexing = async (req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (data) => {
+    try {
+      if (notifyGoogleIndexing) {
+        if (data && (data.slug || data._id)) {
+          notifyGoogleIndexing(`/blog/${data.slug || data._id}`);
+        } else if (data && data.blog) {
+          notifyGoogleIndexing(`/blog/${data.blog.slug || data.blog._id}`);
+        }
+      }
+    } catch (err) {
+      console.warn('Google index notification skipped:', err.message);
+    }
+    return originalJson(data);
+  };
+  return updateBlog(req, res, next);
+};
+
+// ─── ADMIN ROUTES (Protected) ─────────────────────────────────────
 router.get('/admin/all', protect, adminOnly, getAllBlogsAdmin);
-router.post('/', protect, adminOnly, createBlog);
-router.put('/:id', protect, adminOnly, updateBlog);
+router.post('/', protect, adminOnly, createBlogWithIndexing);
+router.put('/:id', protect, adminOnly, updateBlogWithIndexing);
 router.delete('/:id', protect, adminOnly, deleteBlog);
 
-// ─── Public Routes ────────────────────────────────────────────────
+// ─── PUBLIC ROUTES ────────────────────────────────────────────────
 router.get('/', getPublishedBlogs);
 router.get('/featured', getFeaturedBlogs);
 router.get('/slug/:slug', getBlogBySlug);
 
-// ─── /:id MUST BE LAST ────────────────────────────────────────────
+// ─── /:id MUST BE AT THE VERY BOTTOM ──────────────────────────────
 router.get('/:id', getBlogById);
 
+// ✅ ESSENTIAL: Default export for server.js
 export default router;

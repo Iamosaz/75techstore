@@ -1,73 +1,86 @@
 // src/pages/MembershipPlan.jsx
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   FaCrown, FaStar, FaGem, FaCheck,
   FaArrowRight, FaSpinner, FaLock, FaExclamationCircle
-} from 'react-icons/fa'
-import PreFooter from '../components/prefooter/PreFooter'
+} from 'react-icons/fa';
+import PreFooter from '../components/prefooter/PreFooter';
+
+// ✅ Fixed backend URL
+const API_URL = 'http://localhost:5000/api';
 
 const MembershipPlan = () => {
-  const [billingCycle, setBillingCycle] = useState('monthly')
-  const [loadingTier, setLoadingTier]   = useState(null)
-  const [errorMsg, setErrorMsg]         = useState('')
-  const [currentMembership, setCurrentMembership] = useState(null)
+  const [billingCycle, setBillingCycle] = useState('monthly');
+  const [loadingTier, setLoadingTier] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [currentMembership, setCurrentMembership] = useState(null);
 
-  // 100% Guaranteed Token Finder: Scans localStorage for your active login token
+  // Robust token finder
   const getAuthToken = () => {
     try {
-      // 1. Direct token check
-      const direct = localStorage.getItem('token')
-      if (direct && direct.startsWith('ey')) return direct
+      const direct = localStorage.getItem('token') || localStorage.getItem('adminToken');
+      if (direct && direct.startsWith('ey')) return direct;
 
-      // 2. Scan all storage keys (user, userInfo, auth, etc.)
       for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i)
-        const val = localStorage.getItem(key)
+        const key = localStorage.key(i);
+        const val = localStorage.getItem(key);
         if (val) {
-          if (typeof val === 'string' && val.startsWith('ey')) return val
+          if (typeof val === 'string' && val.startsWith('ey')) return val;
           try {
-            const parsed = JSON.parse(val)
-            if (parsed?.token && parsed.token.startsWith('ey')) return parsed.token
-            if (parsed?.user?.token && parsed.user.token.startsWith('ey')) return parsed.user.token
-          } catch (e) {}
+            const parsed = JSON.parse(val);
+            if (parsed?.token && parsed.token.startsWith('ey')) return parsed.token;
+            if (parsed?.user?.token && parsed.user.token.startsWith('ey')) return parsed.user.token;
+          } catch (e) { /* ignore */ }
         }
       }
-      return direct || null
+      return null;
     } catch (e) {
-      return null
+      return null;
     }
-  }
+  };
 
-  const token = getAuthToken()
+  const getStoredUser = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user?.email) return user;
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      return userInfo;
+    } catch {
+      return {};
+    }
+  };
+
+  const token = getAuthToken();
 
   useEffect(() => {
     if (token) {
-      axios.get('/api/membership/my-membership', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => {
-        if (res.data?.hasMembership && res.data?.data) {
-          setCurrentMembership(res.data.data)
-        }
-      })
-      .catch(() => {})
+      axios
+        .get(`${API_URL}/membership/my-membership`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then((res) => {
+          if (res.data?.hasMembership && res.data?.data) {
+            setCurrentMembership(res.data.data);
+          }
+        })
+        .catch(() => {});
     }
-  }, [token])
+  }, [token]);
 
   const tiers = [
     {
       id: 'silver',
       name: 'Silver VIP',
       icon: <FaStar size={28} />,
-      monthly: 2000,
-      yearly: 20000,
+      monthly: 3000,
+      yearly: 36000,
       color: 'from-slate-400 to-slate-500',
       border: 'border-slate-300',
       benefits: [
-        '5% Flat Discount On All Products',
+        '10% Flat Discount On All Products',
         'Priority Customer & Repair Support',
-        '₦1,000 Birthday Bonus Credit',
+        '₦1,500 Birthday Bonus Credit',
         'Early Flash Sales Notification'
       ]
     },
@@ -75,55 +88,60 @@ const MembershipPlan = () => {
       id: 'gold',
       name: 'Gold VIP',
       icon: <FaCrown size={28} />,
-      monthly: 5000,
-      yearly: 50000,
+      monthly: 7000,
+      yearly: 84000,
       color: 'from-amber-400 to-yellow-500',
       border: 'border-amber-400',
       popular: true,
       benefits: [
         '10% Flat Discount On All Products',
-        '2 Free Device Repairs Per Month',
-        '50% Off Nationwide Delivery',
-        '+6 Months Extended Device Warranty',
-        '₦3,000 Birthday Bonus Credit'
+        '12% Flat Discount on Repairs',
+        '40% Off Nationwide Delivery',
+        '+2 Months Extended Device Warranty',
+        '₦2,500 Birthday Bonus Credit',
+        'Early access to new products (24hr)'
       ]
     },
     {
       id: 'platinum',
       name: 'Platinum VIP',
       icon: <FaGem size={28} />,
-      monthly: 10000,
-      yearly: 100000,
+      monthly: 12000,
+      yearly: 144000,
       color: 'from-purple-500 to-indigo-600',
       border: 'border-purple-300',
       benefits: [
         '15% Flat Discount On All Products',
         '100% FREE Nationwide Delivery Always',
-        'Unlimited Device Repair Labor Included',
-        '+12 Months Extended Warranty',
+        '50% Flat Discount on Repairs Per month',
+        '+5 Months Extended Warranty',
         'Private VIP Dedicated WhatsApp Line',
-        '₦5,000 Birthday Bonus Credit'
+        '₦4,000 Birthday Bonus Credit',
+        'First access to new products (48hr)'
       ]
     }
-  ]
+  ];
 
   const handleSubscribe = async (tierId) => {
-    setErrorMsg('')
-    const activeToken = getAuthToken()
+    setErrorMsg('');
+    const activeToken = getAuthToken();
+    const storedUser = getStoredUser();
 
     if (!activeToken) {
-      setErrorMsg('Please ensure you are logged into your account.')
-      return
+      setErrorMsg('Please log in to subscribe to a membership plan.');
+      setTimeout(() => (window.location.href = '/login'), 1800);
+      return;
     }
 
-    setLoadingTier(tierId)
+    setLoadingTier(tierId);
 
     try {
       const response = await axios.post(
-        '/api/membership/initialize',
+        `${API_URL}/membership/initialize`,
         {
           tier: tierId,
-          billingCycle
+          billingCycle,
+          email: storedUser?.email
         },
         {
           headers: {
@@ -131,24 +149,28 @@ const MembershipPlan = () => {
             'Content-Type': 'application/json'
           }
         }
-      )
+      );
 
-      if (response.data?.success && response.data?.data?.authorizationUrl) {
-        // Direct redirect to Paystack payment gateway
-        window.location.href = response.data.data.authorizationUrl
+      // ✅ Support both naming conventions from backend
+      const authUrl =
+        response.data?.data?.authorizationUrl ||
+        response.data?.data?.authorization_url;
+
+      if (response.data?.success && authUrl) {
+        window.location.href = authUrl;
       } else {
-        setErrorMsg(response.data?.message || 'Failed to open Paystack.')
-        setLoadingTier(null)
+        setErrorMsg(response.data?.message || 'Failed to open Paystack gateway.');
+        setLoadingTier(null);
       }
     } catch (err) {
-      console.error('Paystack error:', err)
+      console.error('Paystack error:', err);
       setErrorMsg(
-        err.response?.data?.message || 
-        'Could not connect to payment gateway. Please check your connection.'
-      )
-      setLoadingTier(null)
+        err.response?.data?.message ||
+          'Could not connect to payment gateway. Please check your backend is running.'
+      );
+      setLoadingTier(null);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
@@ -190,7 +212,10 @@ const MembershipPlan = () => {
               billingCycle === 'yearly' ? 'bg-white text-gray-900 shadow-md' : 'text-gray-600'
             }`}
           >
-            Yearly <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">SAVE 20%</span>
+            Yearly
+            <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+              SAVE 20%
+            </span>
           </button>
         </div>
 
@@ -205,17 +230,19 @@ const MembershipPlan = () => {
         )}
 
         {/* Pricing Cards */}
-        <section className="max-w-6xl mx-auto px-6 pb-20">
+        <section id="benefits" className="max-w-6xl mx-auto px-6 pb-20">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {tiers.map((tier) => {
-              const price = billingCycle === 'monthly' ? tier.monthly : tier.yearly
-              const isCurrent = currentMembership?.tier === tier.id
-              const isLoading = loadingTier === tier.id
+              const price = billingCycle === 'monthly' ? tier.monthly : tier.yearly;
+              const isCurrent = currentMembership?.tier === tier.id;
+              const isLoading = loadingTier === tier.id;
 
               return (
                 <div
                   key={tier.id}
-                  className="relative flex flex-col justify-between rounded-3xl p-8 border-2 border-gray-200 bg-white shadow-xl hover:shadow-2xl transition-all"
+                  className={`relative flex flex-col justify-between rounded-3xl p-8 border-2 ${
+                    tier.popular ? tier.border : 'border-gray-200'
+                  } bg-white shadow-xl hover:shadow-2xl transition-all`}
                 >
                   {tier.popular && (
                     <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[11px] font-black px-4 py-1 rounded-full uppercase tracking-widest shadow-md">
@@ -225,7 +252,9 @@ const MembershipPlan = () => {
 
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tier.color} text-white flex items-center justify-center shadow-md`}>
+                      <div
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tier.color} text-white flex items-center justify-center shadow-md`}
+                      >
                         {tier.icon}
                       </div>
                       <div>
@@ -236,15 +265,22 @@ const MembershipPlan = () => {
 
                     <div className="my-6">
                       <span className="text-gray-400 font-bold text-lg">₦</span>
-                      <span className="text-4xl font-black text-gray-900">{price.toLocaleString()}</span>
-                      <span className="text-gray-500 text-sm font-medium">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                      <span className="text-4xl font-black text-gray-900">
+                        {price.toLocaleString()}
+                      </span>
+                      <span className="text-gray-500 text-sm font-medium">
+                        /{billingCycle === 'monthly' ? 'mo' : 'yr'}
+                      </span>
                     </div>
 
                     <hr className="border-gray-100 my-6" />
 
                     <ul className="space-y-3.5 mb-8">
                       {tier.benefits.map((b, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 font-medium">
+                        <li
+                          key={i}
+                          className="flex items-start gap-2.5 text-sm text-gray-700 font-medium"
+                        >
                           <FaCheck className="text-emerald-500 mt-0.5 flex-shrink-0" />
                           <span>{b}</span>
                         </li>
@@ -276,7 +312,7 @@ const MembershipPlan = () => {
                     )}
                   </button>
                 </div>
-              )
+              );
             })}
           </div>
 
@@ -288,7 +324,7 @@ const MembershipPlan = () => {
 
       <PreFooter />
     </div>
-  )
-}
+  );
+};
 
-export default MembershipPlan
+export default MembershipPlan;

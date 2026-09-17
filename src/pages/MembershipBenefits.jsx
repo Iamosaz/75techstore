@@ -14,16 +14,15 @@ const MembershipBenefits = () => {
     {
       name: 'Silver VIP',
       icon: <FaStar size={32} />,
-      price: '2,000',
+      price: '3,000',
       color: 'from-gray-400 to-gray-500',
       bgCard: 'bg-white',
       border: 'border-slate-200',
       benefits: [
-        '5% discount on all products',
-        'Priority customer support',
-        'Birthday bonus reward (₦1,000)',
-        'Early access to flash sales',
-        'Members-only community group'
+        '10% Flat Discount On All Products',
+        'Priority Customer & Repair Support',
+        '₦1,500 Birthday Bonus Credit',
+        'Early Flash Sales Notification'
       ],
       idealFor: 'Casual shoppers who want basic savings'
     },
@@ -36,12 +35,12 @@ const MembershipBenefits = () => {
       border: 'border-yellow-400',
       popular: true,
       benefits: [
-        '10% discount on all products',
-        'Free device repairs (2x per month)',
-        'Early access to new products (24hr)',
-        '50% off delivery fees',
-        'Extended warranty (+6 months)',
-        'Birthday bonus reward (₦3,000)'
+        '10% Flat Discount On All Products',
+        '12% Flat Discount on Repairs',
+        '40% Off Nationwide Delivery',
+        '+2 Months Extended Device Warranty',
+        '₦2,500 Birthday Bonus Credit',
+        'Early access to new products (24hr)'
       ],
       idealFor: 'Regular customers who want real savings'
     },
@@ -53,13 +52,13 @@ const MembershipBenefits = () => {
       bgCard: 'bg-purple-50/10',
       border: 'border-purple-300',
       benefits: [
-        '15% discount on everything',
-        'Free nationwide delivery always',
-        'Unlimited free device repairs',
-        'First access to new products (48hr)',
-        'Extended warranty (+12 months)',
-        'Birthday bonus reward (₦5,000)',
-        'Personal VIP WhatsApp line'
+         '15% Flat Discount On All Products',
+        '100% FREE Nationwide Delivery Always',
+        '50% Flat Discount on Repairs Per month',
+        '+5 Months Extended Warranty',
+        'Private VIP Dedicated WhatsApp Line',
+        '₦4,000 Birthday Bonus Credit',
+        'First access to new products (48hr)'
       ],
       idealFor: 'Businesses & tech enthusiasts'
     }

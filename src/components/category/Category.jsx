@@ -1,8 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import earphone from '../../assets/airpods1.png'
+import earphone from '../../assets/airpodmax1.png'
 import gadget from '../../assets/gadget.png'
-import laptop from '../../assets/macb.png'
+import laptop from '../../assets/macbookpro1.png'
 
 const Category = () => {
   const navigate = useNavigate()

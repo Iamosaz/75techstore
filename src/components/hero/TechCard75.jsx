@@ -1,32 +1,31 @@
 // src/components/prefooter/TechCard75.jsx
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import banner from '../../assets/75TechstoreLOGO.png'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   FaCrown, FaStar, FaGem, FaCheck,
-  FaArrowRight, FaTools, FaShippingFast, 
+  FaArrowRight, FaTools, FaShippingFast,
   FaPercent, FaShieldAlt
-} from 'react-icons/fa'
+} from 'react-icons/fa';
 
 const TechCard75 = () => {
-  const [activeTier, setActiveTier] = useState(1) // Default to Gold
-  const [memberCount, setMemberCount] = useState(3842)
+  const [activeTier, setActiveTier] = useState(1);
+  const [memberCount, setMemberCount] = useState(3842);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setMemberCount(prev => prev + Math.floor(Math.random() * 2) + 1)
-    }, 7000)
-    return () => clearInterval(interval)
-  }, [])
+      setMemberCount((prev) => prev + Math.floor(Math.random() * 2) + 1);
+    }, 7000);
+    return () => clearInterval(interval);
+  }, []);
 
   const tiers = [
     {
       id: 'silver',
       name: 'Silver VIP',
-      icon: <FaStar className="text-gray-400 text-xl" />,
-      price: '2,000',
+      icon: <FaStar className="text-slate-300 text-xl" />,
+      price: '3,000',
       color: 'from-slate-400 to-slate-500',
-      border: 'border-slate-300',
+      border: 'border-slate-500/30',
       perks: [
         '5% Flat Discount On All Products',
         'Priority Technical Support',
@@ -37,13 +36,13 @@ const TechCard75 = () => {
       id: 'gold',
       name: 'Gold VIP',
       icon: <FaCrown className="text-yellow-400 text-xl" />,
-      price: '5,000',
+      price: '7,000',
       color: 'from-amber-400 to-amber-600',
       border: 'border-amber-400/50',
       perks: [
-        '10% Flat Discount On All Products',
-        '2 Free Repairs Per Month',
-        '50% Off Delivery Fees'
+        '5% Flat Discount On All Products',
+        '12% Flat Discount on Repairs',
+        '30% Off Nationwide Delivery'
       ],
       popular: true
     },
@@ -51,29 +50,29 @@ const TechCard75 = () => {
       id: 'platinum',
       name: 'Platinum VIP',
       icon: <FaGem className="text-purple-400 text-xl" />,
-      price: '10,000',
+      price: '12,000',
       color: 'from-purple-500 to-indigo-600',
-      border: 'border-purple-300',
+      border: 'border-purple-500/40',
       perks: [
         '15% Flat Discount On Everything',
         'Free Delivery Nationwide',
-        'Unlimited Device Repairs'
+        '50% Flat Discount on Repairs Per month'
       ]
     }
-  ]
+  ];
 
   const miniStats = [
     { icon: <FaPercent />, label: 'Save up to 15%' },
     { icon: <FaShippingFast />, label: 'Free Delivery' },
     { icon: <FaTools />, label: 'Free Repairs' },
     { icon: <FaShieldAlt />, label: 'Warranty Extended' }
-  ]
+  ];
 
   return (
-    <section className="max-w-7xl mx-auto my-24 px-6 relative">
+    <section className="max-w-7xl mx-auto my-20 px-6 relative">
       <div className="relative bg-gradient-to-br from-[#0c152b] via-[#10244c] to-[#080d1a] text-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5">
         <div className="flex flex-col lg:flex-row items-stretch justify-between relative z-10">
-          
+
           {/* Left Column Copywriting */}
           <div className="p-8 md:p-12 lg:p-16 lg:w-3/5 flex flex-col justify-center">
             <div className="self-start flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4 py-1.5 mb-6">
@@ -83,7 +82,7 @@ const TechCard75 = () => {
               </span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-[1.1]">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
               Join The Exclusive
               <br />
               <span className="bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
@@ -94,12 +93,16 @@ const TechCard75 = () => {
             </h2>
 
             <p className="text-gray-300 text-lg mb-8 max-w-xl leading-relaxed">
-              Unlock wholesale pricing, priority repair support lines, and exclusive members-only drops. Save an average of <span className="text-yellow-400 font-extrabold">₦75,000+ annually</span>.
+              Unlock wholesale pricing, priority repair support lines, and exclusive members-only drops. Save an average of{' '}
+              <span className="text-yellow-400 font-extrabold">₦75,000+ annually</span>.
             </p>
 
             <div className="grid grid-cols-2 gap-4 mb-8 max-w-lg">
               {miniStats.map((stat, i) => (
-                <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
+                <div
+                  key={i}
+                  className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3"
+                >
                   <span className="text-yellow-400 text-base">{stat.icon}</span>
                   <span className="text-white font-medium text-xs md:text-sm">{stat.label}</span>
                 </div>
@@ -107,6 +110,7 @@ const TechCard75 = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+              {/* ✅ "Join VIP Club" - Scrolls to top of MembershipPlan page */}
               <Link
                 to="/membership-plan"
                 className="group flex items-center justify-center gap-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg text-lg hover:scale-105"
@@ -116,8 +120,9 @@ const TechCard75 = () => {
                 <FaArrowRight className="group-hover:translate-x-1.5 transition-transform" />
               </Link>
 
+              {/* ✅ "See All Benefits" - Scrolls directly to the benefits/pricing section */}
               <Link
-                to="/membership-benefits"
+                to="/membership-plan#benefits"
                 className="flex items-center justify-center gap-2 border-2 border-white/20 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-all text-lg"
               >
                 See All Benefits
@@ -133,9 +138,10 @@ const TechCard75 = () => {
                   key={tier.id}
                   onClick={() => setActiveTier(index)}
                   className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all uppercase tracking-wider
-                    ${activeTier === index 
-                      ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black shadow-md' 
-                      : 'text-gray-400 hover:text-white'
+                    ${
+                      activeTier === index
+                        ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black shadow-md'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                 >
                   {tier.name.split(' ')[0]}
@@ -143,7 +149,9 @@ const TechCard75 = () => {
               ))}
             </div>
 
-            <div className={`w-full max-w-sm bg-gradient-to-br from-white/[0.08] to-white/[0.02] border-2 ${tiers[activeTier].border} rounded-[2rem] p-6 shadow-2xl relative overflow-hidden`}>
+            <div
+              className={`w-full max-w-sm bg-gradient-to-br from-white/[0.08] to-white/[0.02] border-2 ${tiers[activeTier].border} rounded-[2rem] p-6 shadow-2xl relative overflow-hidden`}
+            >
               {tiers[activeTier].popular && (
                 <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-[10px] font-black px-4 py-1.5 rounded-bl-2xl uppercase tracking-widest">
                   POPULAR
@@ -151,26 +159,35 @@ const TechCard75 = () => {
               )}
 
               <div className="flex items-center gap-4 mb-6">
-                <div className={`w-12 h-12 bg-gradient-to-br ${tiers[activeTier].color} text-white rounded-xl flex items-center justify-center shadow-md`}>
+                <div
+                  className={`w-12 h-12 bg-gradient-to-br ${tiers[activeTier].color} text-white rounded-xl flex items-center justify-center shadow-md`}
+                >
                   {tiers[activeTier].icon}
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest block">VIP Tier</span>
-                  <h4 className="text-xl font-extrabold text-white leading-none">{tiers[activeTier].name}</h4>
+                  <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest block">
+                    VIP Tier
+                  </span>
+                  <h4 className="text-xl font-extrabold text-white leading-none">
+                    {tiers[activeTier].name}
+                  </h4>
                 </div>
               </div>
 
               <div className="flex items-baseline gap-1 mb-6">
                 <span className="text-gray-400 font-bold text-lg">₦</span>
-                <span className="text-4xl font-black text-gray-900">{tiers[activeTier].price}</span>
-                <span className="text-gray-400 text-sm">/month</span>
+                <span className="text-4xl font-black text-white">{tiers[activeTier].price}</span>
+                <span className="text-gray-400 text-sm ml-1">/month</span>
               </div>
 
               <hr className="border-white/10 mb-6" />
 
               <ul className="space-y-3.5 mb-8">
                 {tiers[activeTier].perks.map((perk, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-gray-200 font-medium">
+                  <li
+                    key={i}
+                    className="flex items-start gap-3 text-sm text-gray-200 font-medium"
+                  >
                     <span className="w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <FaCheck className="text-emerald-400 text-[10px]" />
                     </span>
@@ -179,6 +196,7 @@ const TechCard75 = () => {
                 ))}
               </ul>
 
+              {/* ✅ "Claim This Tier" - Goes to plan page */}
               <Link
                 to="/membership-plan"
                 className="block w-full text-center bg-white/10 hover:bg-yellow-400 hover:text-black text-white font-extrabold py-3.5 rounded-xl transition-all"
@@ -191,7 +209,7 @@ const TechCard75 = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default TechCard75
+export default TechCard75;

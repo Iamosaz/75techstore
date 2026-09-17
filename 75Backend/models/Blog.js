@@ -5,92 +5,77 @@ const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: [true, 'Title is required'],
-      trim: true
+      required: [true, 'Blog title is required'],
+      trim: true,
+      maxlength: [200, 'Title cannot exceed 200 characters']
     },
     slug: {
       type: String,
-      unique: true,
+      required: true,
+      unique: true,   // ✅ This auto-creates the slug index
       lowercase: true,
-      sparse: true  // ✅ Prevents null duplicate errors
-    },
-    content: {
-      type: String,
-      required: [true, 'Content is required']
+      trim: true
     },
     excerpt: {
       type: String,
-      default: ''
+      trim: true,
+      maxlength: [300, 'Excerpt cannot exceed 300 characters']
+    },
+    content: {
+      type: String,
+      required: [true, 'Blog content is required']
+    },
+    category: {
+      type: String,
+      default: 'Tech News',
+      trim: true
+    },
+    tags: {
+      type: [String],
+      default: []
     },
     coverImage: {
       type: String,
       default: ''
     },
-    category: {
-      type: String,
-      enum: [
-        'Tech News', 'Product Reviews', 'How To',
-        'Deals & Offers', 'Gaming', 'Phones',
-        'Laptops', 'Accessories', 'Other'
-      ],
-      default: 'Tech News'
-    },
-    tags: [{ type: String }],
     author: {
-      type: String,
-      default: '75TechStore Team'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
     },
     status: {
       type: String,
-      enum: ['draft', 'published'],
+      enum: ['draft', 'published', 'archived'],
       default: 'draft'
     },
-    isFeatured: { type: Boolean, default: false },
-    views: { type: Number, default: 0 },
-    readTime: { type: Number, default: 5 },
-    metaTitle: { type: String, default: '' },
-    metaDescription: { type: String, default: '' },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false
+    readTime: {
+      type: Number,
+      default: 5
+    },
+    metaDescription: {
+      type: String,
+      default: ''
+    },
+    views: {
+      type: Number,
+      default: 0
+    },
+    isAIGenerated: {
+      type: Boolean,
+      default: false
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
-// ✅ FIXED pre-save hook
-blogSchema.pre('save', function (next) {
-  try {
-    // ✅ Auto generate UNIQUE slug
-    if (this.isModified('title')) {
-      const baseSlug = this.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      this.slug = `${baseSlug}-${Date.now()}`;  // ✅ Always unique
-    }
 
-    // ✅ Auto generate excerpt
-    if (this.isModified('content') && !this.excerpt) {
-      this.excerpt = this.content
-        .replace(/<[^>]*>/g, '')
-        .substring(0, 160) + '...';
-    }
+blogSchema.index({ status: 1, createdAt: -1 });
+blogSchema.index({ category: 1 });
 
-    // ✅ FIXED - stray 'a' removed
-    if (this.isModified('content')) {
-      const wordCount = this.content
-        .replace(/<[^>]*>/g, '')
-        .split(/\s+/).length;
-      this.readTime = Math.ceil(wordCount / 200);
-    }
+const Blog = mongoose.model('Blog', blogSchema);
 
-    next();
-  } catch (error) {
-    console.error('❌ Blog pre-save error:', error.message);
-    next(error);
-  }
-});
-
-export const Blog = mongoose.model('Blog', blogSchema);
+// Named + Default Exports (works with all controller import styles)
+export { Blog };
+export default Blog;
