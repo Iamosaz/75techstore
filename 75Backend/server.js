@@ -83,10 +83,14 @@ app.use(blockMaliciousAgents);
 app.use(ipBlacklistMiddleware);
 app.use(securityHeaders);
 
+// ✅ UPDATED CORS POLICY: Allows your exact Vercel site and all future Vercel deployments
 app.use(cors({
   origin: [
     'https://www.75techstore.com.ng',
     'https://75techstore.com.ng',
+    'https://75techstore-lfy8.vercel.app',
+    'https://75techstore.vercel.app',
+    /\.vercel\.app$/, // Allows all Vercel preview & production subdomains
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
