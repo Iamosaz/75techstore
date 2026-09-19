@@ -6,32 +6,35 @@ const HeroWelcome = () => {
   return (
     <section className="w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-blue-900 text-white overflow-y-auto">
 
-      {/* ✅ Centers content vertically on all screens */}
+      {/* ✅ Increased side padding (px-8 sm:px-12 md:px-16 lg:px-24) to keep clear of slider arrows */}
       <div className="max-w-7xl mx-auto h-full flex flex-col md:flex-row
                       items-center justify-center
-                      gap-4 md:gap-10 px-4 sm:px-6
-                      py-4 sm:py-6 md:py-0">
+                      gap-6 md:gap-12 
+                      px-8 sm:px-12 md:px-16 lg:px-24
+                      py-6 md:py-0">
 
         {/* ── LEFT: Text Content ── */}
         <motion.div
-          className="flex-1 text-center md:text-left space-y-3 sm:space-y-4 w-full"
+          className="flex-1 text-center md:text-left space-y-3 sm:space-y-4 w-full md:pl-2"
           initial={{ opacity: 0, x: -80 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, ease: "easeInOut" }}
         >
           <motion.h1 className="font-bold leading-tight">
-            <span className="block text-white text-base sm:text-lg md:text-xl font-medium mb-1">
+            <span className="block text-white text-base sm:text-lg md:text-xl font-medium mb-1 tracking-wide">
               Welcome to
             </span>
-            <span className="text-blue-400 text-3xl sm:text-4xl md:text-5xl lg:text-7xl">7</span>
-            <span className="text-red-500 text-3xl sm:text-4xl md:text-5xl lg:text-7xl">5</span>
-            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl bg-gradient-to-r from-blue-400 via-white to-orange-400 bg-clip-text text-transparent">
-              TechStore
-            </span>
+            <div className="flex items-baseline justify-center md:justify-start flex-wrap gap-x-1">
+              <span className="text-blue-400 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black">7</span>
+              <span className="text-red-500 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black">5</span>
+              <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-blue-400 via-white to-orange-400 bg-clip-text text-transparent">
+                TechStore
+              </span>
+            </div>
           </motion.h1>
 
           <motion.p
-            className="max-w-sm mx-auto md:mx-0 text-xs sm:text-sm md:text-base text-white/80 leading-relaxed"
+            className="max-w-md mx-auto md:mx-0 text-xs sm:text-sm md:text-base text-gray-300 leading-relaxed"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -41,7 +44,7 @@ const HeroWelcome = () => {
           </motion.p>
 
           <motion.div
-            className="flex justify-center md:justify-start gap-2 sm:gap-3 flex-wrap"
+            className="flex justify-center md:justify-start gap-2.5 sm:gap-3.5 flex-wrap pt-1"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1, duration: 0.8 }}
@@ -49,16 +52,16 @@ const HeroWelcome = () => {
             <a
               href="/shop"
               className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold
-                         px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all
+                         px-5 sm:px-6 py-2.5 rounded-full transition-all
                          duration-300 hover:scale-105 shadow-lg text-xs sm:text-sm"
             >
               Shop Now
             </a>
             <a
               href="/repairs"
-              className="border-2 border-white text-white hover:bg-white
-                         hover:text-blue-700 font-bold px-4 sm:px-6 py-2 sm:py-2.5
-                         rounded-full transition-all duration-300 text-xs sm:text-sm"
+              className="border-2 border-white/80 text-white hover:bg-white
+                         hover:text-blue-900 font-bold px-5 sm:px-6 py-2.5
+                         rounded-full transition-all duration-300 text-xs sm:text-sm backdrop-blur-sm"
             >
               Book Repair
             </a>
@@ -74,7 +77,7 @@ const HeroWelcome = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4, duration: 1 }}
         >
-          {/* ✅ Sticky Header */}
+          {/* Header */}
           <div className="bg-blue-600 px-4 sm:px-5 py-2.5 sm:py-3 rounded-t-2xl flex-shrink-0">
             <h3 className="text-sm sm:text-base md:text-lg font-bold text-white flex items-center gap-2">
               🔥 Weekly Deals
@@ -84,7 +87,7 @@ const HeroWelcome = () => {
             </p>
           </div>
 
-          {/* ✅ Scrollable Body */}
+          {/* Scrollable Body */}
           <div className="overflow-y-auto flex-1 p-3 sm:p-4 space-y-2 sm:space-y-3">
             {[
               {
@@ -148,7 +151,7 @@ const HeroWelcome = () => {
             </p>
           </div>
 
-          {/* ✅ Sticky Footer - ALWAYS visible above dots */}
+          {/* Sticky Footer */}
           <div className="p-3 sm:p-4 border-t border-gray-100 flex-shrink-0
                           rounded-b-2xl bg-white">
             <a
