@@ -9,13 +9,31 @@ import {
 import { FaStar } from 'react-icons/fa'
 import axios from 'axios'
 
-const API_URL = 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api';
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`;
+  }
+
+  return clean;
+};
+
+const API_URL = getCleanApiUrl();
 
 const serviceCategories = [
   'Website Development', 'Website Management', 'App Development',
   'SEO Services', 'UI/UX Design', 'Digital Marketing',
   'Cloud & Hosting', 'Cybersecurity', 'Other',
-]
+] 
 
 const reviewStatusConfig = {
   Pending:  { bg: 'bg-yellow-100', text: 'text-yellow-700', dot: 'bg-yellow-500' },
@@ -39,42 +57,48 @@ const AdminDigitalServices = () => {
   })
   const [saving, setSaving] = useState(false)
 
-  // ✅ FIX 1 — Removed unused editingReview, reviewEdit, savingReview states
-  // They are now managed locally inside handleReviewAction only
-
-  // ✅ Auth header helper — wrapped in useCallback so it's stable
-  const authHeader = useCallback(() => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
-  }), [])
+  // 🛡️ Safe Auth header helper — checks all session keys securely
+  const authHeader = useCallback(() => {
+    let token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+    if (!token) {
+      try {
+        const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+        token = userObj?.token || null;
+      } catch {
+        token = null;
+      }
+    }
+    return {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    };
+  }, [])
 
   const showSuccess = useCallback((msg) => {
     setSuccessMsg(msg)
     setTimeout(() => setSuccessMsg(''), 3000)
   }, [])
 
-  // ✅ FIX 2 — Wrapped in useCallback to fix useEffect exhaustive-deps warning
   const fetchProjects = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/digital/projects/all`, authHeader())
       if (data.success) setProjects(data.data || [])
     } catch (err) {
-      // ✅ FIX 3 — Actually using err now
       setError(err.response?.data?.message || 'Failed to load projects')
     }
   }, [authHeader])
 
-  // ✅ FIX 2 — Wrapped in useCallback to fix useEffect exhaustive-deps warning
   const fetchReviews = useCallback(async () => {
     try {
       const { data } = await axios.get(`${API_URL}/digital/reviews/all`, authHeader())
       if (data.success) setReviews(data.data || [])
     } catch (err) {
-      // ✅ FIX 3 — Actually using err now
       setError(err.response?.data?.message || 'Failed to load reviews')
     }
   }, [authHeader])
 
-  // ✅ FIX 4 — useEffect now has correct deps — no more warning
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true)
@@ -122,7 +146,7 @@ const AdminDigitalServices = () => {
 
       if (editingProject) {
         const { data } = await axios.put(
-          `${API_URL}/digital/projects/${editingProject}`,
+          `${API_URL}/digital/projects/${encodeURIComponent(editingProject)}`,
           payload,
           authHeader()
         )
@@ -143,7 +167,6 @@ const AdminDigitalServices = () => {
       }
       resetProjectForm()
     } catch (err) {
-      // ✅ FIX 3 — Actually using err now
       setError(err.response?.data?.message || 'Failed to save project')
     } finally {
       setSaving(false)
@@ -153,20 +176,18 @@ const AdminDigitalServices = () => {
   const handleDeleteProject = async (id) => {
     if (!window.confirm('Delete this project?')) return
     try {
-      await axios.delete(`${API_URL}/digital/projects/${id}`, authHeader())
+      await axios.delete(`${API_URL}/digital/projects/${encodeURIComponent(id)}`, authHeader())
       setProjects(prev => prev.filter(p => p._id !== id))
       showSuccess('Project deleted!')
     } catch (err) {
-      // ✅ FIX 3 — Actually using err now
       setError(err.response?.data?.message || 'Failed to delete project')
     }
   }
 
   const handleReviewAction = async (id, updates) => {
-    // ✅ FIX 1 — savingReview managed locally, not as unused state
     try {
       const { data } = await axios.put(
-        `${API_URL}/digital/reviews/${id}`,
+        `${API_URL}/digital/reviews/${encodeURIComponent(id)}`,
         updates,
         authHeader()
       )
@@ -175,7 +196,6 @@ const AdminDigitalServices = () => {
         showSuccess('Review updated!')
       }
     } catch (err) {
-      // ✅ FIX 3 — Actually using err now
       setError(err.response?.data?.message || 'Failed to update review')
     }
   }
@@ -183,11 +203,10 @@ const AdminDigitalServices = () => {
   const handleDeleteReview = async (id) => {
     if (!window.confirm('Delete this review permanently?')) return
     try {
-      await axios.delete(`${API_URL}/digital/reviews/${id}`, authHeader())
+      await axios.delete(`${API_URL}/digital/reviews/${encodeURIComponent(id)}`, authHeader())
       setReviews(prev => prev.filter(r => r._id !== id))
       showSuccess('Review deleted!')
     } catch (err) {
-      // ✅ FIX 3 — Actually using err now
       setError(err.response?.data?.message || 'Failed to delete review')
     }
   }
@@ -377,7 +396,7 @@ const AdminDigitalServices = () => {
                   <div className="bg-gray-100 rounded-xl p-2 inline-block">
                     <img src={projectForm.imageUrl} alt="Preview"
                       className="h-32 rounded-lg object-cover"
-                      onError={(e) => e.target.style.display = 'none'} />
+                      onError={(e) => { e.target.style.display = 'none'; }} />
                   </div>
                 )}
 
@@ -465,7 +484,7 @@ const AdminDigitalServices = () => {
                       {project.liveUrl && (
                         <a href={project.liveUrl} target="_blank" rel="noopener noreferrer"
                           className="flex items-center gap-1 text-green-600 text-xs font-semibold
-                            hover:bg-green-50 px-2 py-1.5 rounded-lg transition">
+                            hover:bg-blue-50 px-2 py-1.5 rounded-lg transition">
                           <FiExternalLink size={12} /> View
                         </a>
                       )}
@@ -558,7 +577,6 @@ const AdminDigitalServices = () => {
                           className="flex items-center gap-1 bg-yellow-50 text-yellow-700
                             px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-yellow-100 transition">
                           <FiStar size={13} />
-                          {/* ✅ FIX 5 — Replaced "Unfeature" with "Remove Feature" */}
                           {review.isFeatured ? 'Remove Feature' : 'Feature'}
                         </button>
                       )}
@@ -586,4 +604,4 @@ const AdminDigitalServices = () => {
   )
 }
 
-export default AdminDigitalServices
+export default AdminDigitalServices;

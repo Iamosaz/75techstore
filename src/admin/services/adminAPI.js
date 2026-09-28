@@ -3,8 +3,13 @@
  * 75TechStore Admin API
  */
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  "http://localhost:5000/api";
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/+$/, '');
+
 const TIMEOUT = 30000;
 
 // ✅ Get correct token based on who is calling
@@ -14,7 +19,7 @@ const getCustomerToken = () => localStorage.getItem("75token");
 /**
  * Fetch wrapper with timeout and error handling
  */
-const fetchWithTimeout = async (url, options = {}) => {
+const fetchWithTimeout = async (url, options = {}) => { 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 

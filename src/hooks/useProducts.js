@@ -1,3 +1,4 @@
+// src/hooks/useProducts.js
 import { useState, useEffect } from 'react';
 import { fetchAllProducts, fetchFeaturedProducts } from '../services/productService';
 
@@ -6,12 +7,16 @@ export const useProducts = (params = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Serialize params so the hook only refetches if parameters actually change
+  const serializedParams = JSON.stringify(params);
+
   useEffect(() => {
     const getProducts = async () => {
       try {
         setLoading(true);
-        const data = await fetchAllProducts(params);
-        setProducts(data.products || []);
+        const parsedParams = JSON.parse(serializedParams);
+        const data = await fetchAllProducts(parsedParams);
+        setProducts(data.products || data || []);
       } catch (err) {
         setError('Failed to load products');
         console.error(err);
@@ -20,7 +25,7 @@ export const useProducts = (params = {}) => {
       }
     };
     getProducts();
-  }, []);
+  }, [serializedParams]);
 
   return { products, loading, error };
 };
@@ -35,9 +40,10 @@ export const useFeaturedProducts = () => {
       try {
         setLoading(true);
         const data = await fetchFeaturedProducts();
-        setProducts(data.products || []);
+        setProducts(data.products || data || []);
       } catch (err) {
         setError('Failed to load featured products');
+        console.error(err);
       } finally {
         setLoading(false);
       }

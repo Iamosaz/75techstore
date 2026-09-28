@@ -7,7 +7,9 @@ import {
   Image as ImageIcon, Plus
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
 
 const categories = [
   'Laptops', 'Phones', 'Tablets', 'Accessories', 'Monitors', 'Storage',
@@ -20,7 +22,7 @@ const grades     = ['N/A', 'Grade A', 'Grade B', 'Grade C'];
 
 const defaultForm = {
   name:          '',
-  description:   '',
+  description:   '',  
   price:         '',
   stock:         '',
   category:      '',

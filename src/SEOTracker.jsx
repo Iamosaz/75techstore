@@ -3,7 +3,25 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api';
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`;
+  }
+
+  return clean;
+};
+
+const API_URL = getCleanApiUrl();
 
 export default function SEOTracker() {
   const location = useLocation();
@@ -27,7 +45,7 @@ export default function SEOTracker() {
       // Search Engines
       if (ref.includes("google.")) return "🔍 Google Search";
       if (ref.includes("bing.")) return "🔍 Bing Search";
-      if (ref.includes("yahoo.")) return "🔍 Yahoo Search";
+      if (ref.includes("yahoo.")) return "🔍 Yahoo Search"; 
       if (ref.includes("duckduckgo.")) return "🔍 DuckDuckGo";
 
       // AI Search Engines

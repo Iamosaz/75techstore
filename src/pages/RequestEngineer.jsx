@@ -3,13 +3,15 @@ import React, { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   FaTools, FaCheckCircle, FaUserLock,
-  FaHeadset, FaSpinner, FaShieldAlt
+  FaHeadset, FaSpinner, FaShieldAlt 
 } from 'react-icons/fa'
 import axios from 'axios'
 // ✅ CORRECT - UserContext NOT AdminContext
 import { UserContext } from '../context/UserContext'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 const RequestEngineer = () => {
   const navigate = useNavigate()

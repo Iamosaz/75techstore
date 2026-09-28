@@ -5,7 +5,17 @@ import { FaShoppingCart, FaFilter, FaTimes, FaCheck } from 'react-icons/fa'
 import axios from 'axios'
 import { CartContext } from '../context/CartContext'
 
-const API_URL = import.meta.env.URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
+
+// ✅ Image URL Resolver: Handles Cloudinary URLs, external links, or relative backend uploads
+const resolveImageUrl = (img) => {
+  if (!img) return 'https://via.placeholder.com/200';
+  if (img.startsWith('http://') || img.startsWith('https://')) return img;
+  const backendBase = API_URL.replace(/\/api$/, '');
+  return `${backendBase}${img.startsWith('/') ? '' : '/'}${img}`;
+};
 
 const categories = [
   'All', 'Laptops', 'Phones', 'Tablets',
@@ -18,7 +28,7 @@ const categories = [
 const conditions = ['All', 'Brand New', 'UK Used', 'Good Deals']
 
 const conditionBadge = {
-  'UK Used':     { bg: 'bg-amber-100',  text: 'text-amber-700'  },
+  'UK Used':     { bg: 'bg-amber-100',  text: 'text-amber-700'  }, 
   'Brand New':   { bg: 'bg-green-100',  text: 'text-green-700'  },
   'Refurbished': { bg: 'bg-blue-100',   text: 'text-blue-700'   },
 }
@@ -32,7 +42,7 @@ const gradeBadge = {
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { addToCart, isInCart } = useContext(CartContext) // ✅ NEW
+  const { addToCart, isInCart } = useContext(CartContext)
 
   const [products, setProducts]       = useState([])
   const [loading, setLoading]         = useState(true)
@@ -137,7 +147,7 @@ const Shop = () => {
                 <button onClick={clearSearch}
                   className='inline-flex items-center gap-2 bg-white/20
                     hover:bg-white/30 text-white px-4 py-1.5 rounded-full
-                    text-sm transition-all'>
+                    text-sm transition-all cursor-pointer'>
                   <FaTimes size={10} /> Search: "{searchTerm}"
                 </button>
               )}
@@ -145,7 +155,7 @@ const Shop = () => {
                 <button onClick={() => handleConditionClick('All')}
                   className='inline-flex items-center gap-2 bg-amber-500/30
                     hover:bg-amber-500/50 text-white px-4 py-1.5 rounded-full
-                    text-sm transition-all'>
+                    text-sm transition-all cursor-pointer'>
                   <FaTimes size={10} /> {selectedCondition}
                 </button>
               )}
@@ -153,13 +163,13 @@ const Shop = () => {
                 <button onClick={() => handleCategoryClick('All')}
                   className='inline-flex items-center gap-2 bg-white/20
                     hover:bg-white/30 text-white px-4 py-1.5 rounded-full
-                    text-sm transition-all'>
+                    text-sm transition-all cursor-pointer'>
                   <FaTimes size={10} /> {selectedCategory}
                 </button>
               )}
               <button onClick={clearAllFilters}
                 className='text-blue-200 hover:text-white text-sm
-                  underline transition-all ml-2'>
+                  underline transition-all ml-2 cursor-pointer'>
                 Clear all
               </button>
             </div>
@@ -205,7 +215,7 @@ const Shop = () => {
                   {searchTerm && (
                     <button onClick={clearSearch}
                       className='absolute right-2 top-1/2 -translate-y-1/2
-                        text-gray-400 hover:text-gray-600'>
+                        text-gray-400 hover:text-gray-600 cursor-pointer'>
                       <FaTimes size={12} />
                     </button>
                   )}
@@ -221,7 +231,7 @@ const Shop = () => {
                       onClick={() => handleConditionClick(cond)}
                       className={`w-full text-left px-3 py-2 rounded-lg
                         text-sm transition-all duration-200 flex items-center
-                        justify-between ${
+                        justify-between cursor-pointer ${
                         selectedCondition === cond
                           ? cond === 'UK Used'
                             ? 'bg-amber-500 text-white font-medium'
@@ -248,7 +258,7 @@ const Shop = () => {
                     <button key={cat}
                       onClick={() => handleCategoryClick(cat)}
                       className={`w-full text-left px-3 py-2 rounded-lg
-                        text-sm transition-all duration-200 ${
+                        text-sm transition-all duration-200 cursor-pointer ${
                         selectedCategory === cat
                           ? 'bg-blue-600 text-white font-medium'
                           : 'text-gray-600 hover:bg-gray-100'
@@ -299,7 +309,7 @@ const Shop = () => {
                 <p className="text-sm mt-1">Try a different filter</p>
                 <button onClick={clearAllFilters}
                   className='mt-4 px-5 py-2 bg-blue-600 text-white rounded-lg
-                    text-sm font-medium hover:bg-blue-700 transition'>
+                    text-sm font-medium hover:bg-blue-700 transition cursor-pointer'>
                   Clear All Filters
                 </button>
               </div>
@@ -310,7 +320,7 @@ const Shop = () => {
                   {sortedProducts.map(product => {
                     const cb = conditionBadge[product.condition]
                     const gb = gradeBadge[product.grade]
-                    const inCart = isInCart(product._id) // ✅ NEW
+                    const inCart = isInCart(product._id)
                     return (
                       <div key={product._id}
                         className="bg-white border border-gray-100 rounded-2xl
@@ -341,11 +351,11 @@ const Shop = () => {
                             </span>
                           )}
                           <div
-                            onClick={() => navigate(`/shop/${product._id}`)}
+                            onClick={() => navigate(`/product/${product._id}`)}
                             className="cursor-pointer bg-gray-50 flex items-center
                               justify-center h-44 overflow-hidden px-4 pt-6 pb-2">
                             <img
-                              src={product.imageUrl || 'https://via.placeholder.com/200'}
+                              src={resolveImageUrl(product.imageUrl)}
                               alt={product.name}
                               className="h-full object-contain group-hover:scale-110
                                 transition-transform duration-500" />
@@ -354,7 +364,7 @@ const Shop = () => {
 
                         <div className="p-4 flex flex-col gap-1.5 flex-1">
                           <h4
-                            onClick={() => navigate(`/shop/${product._id}`)}
+                            onClick={() => navigate(`/product/${product._id}`)}
                             className="text-sm font-semibold text-gray-800
                               line-clamp-2 cursor-pointer hover:text-blue-600
                               transition">
@@ -380,11 +390,10 @@ const Shop = () => {
                                 ).toLocaleString()}
                               </span>
                             </div>
-                            {/* ✅ FIXED Add to Cart Button */}
                             <button
                               onClick={() => addToCart(product)}
                               disabled={product.stock <= 0}
-                              className={`p-2 rounded-full transition
+                              className={`p-2 rounded-full transition cursor-pointer
                                 disabled:opacity-50
                                 ${inCart
                                   ? 'bg-green-500 text-white'
@@ -410,13 +419,13 @@ const Shop = () => {
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                       className="px-4 py-2 rounded-lg border border-gray-200
-                        text-sm disabled:opacity-40 hover:bg-gray-50">
+                        text-sm disabled:opacity-40 hover:bg-gray-50 cursor-pointer">
                       ← Prev
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                       <button key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`w-9 h-9 rounded-lg text-sm font-medium ${
+                        className={`w-9 h-9 rounded-lg text-sm font-medium cursor-pointer ${
                           currentPage === page
                             ? 'bg-blue-600 text-white'
                             : 'border border-gray-200 hover:bg-gray-50'
@@ -428,7 +437,7 @@ const Shop = () => {
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
                       className="px-4 py-2 rounded-lg border border-gray-200
-                        text-sm disabled:opacity-40 hover:bg-gray-50">
+                        text-sm disabled:opacity-40 hover:bg-gray-50 cursor-pointer">
                       Next →
                     </button>
                   </div>

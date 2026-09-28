@@ -14,7 +14,9 @@ import { CartContext } from '../context/CartContext'
 import { UserContext } from '../context/UserContext'
 import { ProductAutoSEO } from '../components/AutoSEO'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 const conditionBadge = {
   'UK Used':   { bg: 'bg-amber-100',   text: 'text-amber-800',   ring: 'ring-amber-200' },
@@ -23,7 +25,7 @@ const conditionBadge = {
 }
 
 const gradeBadge = {
-  'Grade A': 'bg-emerald-500',
+  'Grade A': 'bg-emerald-500', 
   'Grade B': 'bg-amber-500',
   'Grade C': 'bg-orange-500',
 }

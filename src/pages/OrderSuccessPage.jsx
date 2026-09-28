@@ -5,13 +5,15 @@ import { FiCheckCircle, FiPackage, FiHome, FiLoader } from 'react-icons/fi'
 import axios from 'axios'
 import { trackEvent } from '../utils/trafficTracker' // ✅ Imported traffic tracker
 
-const API_URL = import.meta.env.URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || import.meta.env.URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 export default function OrderSuccessPage() {
   const [searchParams] = useSearchParams()
   const orderNumber = searchParams.get('order')
   
-  const [order, setOrder] = useState(null)
+  const [order, setOrder] = useState(null)  
   const [loading, setLoading] = useState(true)
 
   // 📦 1. Fetch real order details from your database to extract total amount and items

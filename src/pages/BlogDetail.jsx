@@ -2,12 +2,30 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { BlogAutoSEO } from '../components/AutoSEO' // ✅ Added
+import { BlogAutoSEO } from '../components/AutoSEO'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api'
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '')
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`
+  }
+
+  return clean
+}
+
+const API_URL = getCleanApiUrl()
 
 const BlogDetail = () => {
-  const { id } = useParams()
+  const { id } = useParams() 
   const navigate = useNavigate()
   const [blog, setBlog] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -21,22 +39,20 @@ const BlogDetail = () => {
         setLoading(true)
         setError('')
 
-        console.log('🔍 Fetching blog with id/slug:', id)
-
+        const safeParam = encodeURIComponent(id)
         let blogData = null
 
+        // 1. Try finding blog by slug
         try {
-          const slugRes = await axios.get(`${API_URL}/blogs/slug/${id}`)
+          const slugRes = await axios.get(`${API_URL}/blogs/slug/${safeParam}`)
           blogData = slugRes.data
-          console.log('✅ Found by slug:', blogData.title)
         } catch {
-          console.log('⚠️ Slug not found, trying _id...')
+          // 2. Fallback to finding by MongoDB _id
           try {
-            const idRes = await axios.get(`${API_URL}/blogs/${id}`)
+            const idRes = await axios.get(`${API_URL}/blogs/${safeParam}`)
             blogData = idRes.data
-            console.log('✅ Found by ID:', blogData.title)
           } catch (err2) {
-            console.error('❌ Not found by ID either:', err2.message)
+            console.error('❌ Blog not found by slug or ID:', err2.message)
             setError('Blog post not found')
             return
           }
@@ -44,15 +60,18 @@ const BlogDetail = () => {
 
         setBlog(blogData)
 
-        try {
-          const related = await axios.get(`${API_URL}/blogs`, {
-            params: { category: blogData.category, limit: 4 }
-          })
-          setRelatedBlogs(
-            related.data.blogs?.filter(b => b._id !== blogData._id).slice(0, 3) || []
-          )
-        } catch {
-          console.log('⚠️ Could not load related blogs')
+        // 3. Fetch related category articles
+        if (blogData?.category) {
+          try {
+            const related = await axios.get(`${API_URL}/blogs`, {
+              params: { category: blogData.category, limit: 4 }
+            })
+            setRelatedBlogs(
+              related.data.blogs?.filter(b => b._id !== blogData._id).slice(0, 3) || []
+            )
+          } catch {
+            console.warn('⚠️ Could not load related blogs')
+          }
         }
 
       } catch (err) {
@@ -67,7 +86,7 @@ const BlogDetail = () => {
   }, [id])
 
   const handleWhatsAppShare = () => {
-    const message = `Check out this article from 75TechStore!\n\n*${blog.title}*\n\n${window.location.href}`
+    const message = `Check out this article from 75TechStore!\n\n*${blog?.title}*\n\n${window.location.href}`
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
   }
 
@@ -120,8 +139,7 @@ const BlogDetail = () => {
           </p>
           <button
             onClick={() => navigate('/blog')}
-            className="bg-blue-600 hover:bg-blue-700 text-white
-                       px-8 py-3 rounded-xl font-semibold transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition"
           >
             ← Back to Blog
           </button>
@@ -141,13 +159,17 @@ const BlogDetail = () => {
         <div className="bg-white border-b border-gray-100">
           <div className="max-w-4xl mx-auto px-4 py-3">
             <div className="flex items-center gap-2 text-sm text-gray-500 flex-wrap">
-              <span onClick={() => navigate('/')}
-                className="cursor-pointer hover:text-blue-600 transition">
+              <span 
+                onClick={() => navigate('/')}
+                className="cursor-pointer hover:text-blue-600 transition"
+              >
                 Home
               </span>
               <span>›</span>
-              <span onClick={() => navigate('/blog')}
-                className="cursor-pointer hover:text-blue-600 transition">
+              <span 
+                onClick={() => navigate('/blog')}
+                className="cursor-pointer hover:text-blue-600 transition"
+              >
                 Blog
               </span>
               <span>›</span>
@@ -160,8 +182,7 @@ const BlogDetail = () => {
 
         <div className="max-w-4xl mx-auto px-4 py-8">
 
-          <article className="bg-white rounded-2xl overflow-hidden
-                              shadow-sm border border-gray-100 mb-8">
+          <article className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 mb-8">
 
             {blog.coverImage && (
               <div className="h-64 sm:h-96 overflow-hidden">
@@ -169,7 +190,7 @@ const BlogDetail = () => {
                   src={blog.coverImage}
                   alt={blog.title}
                   className="w-full h-full object-cover"
-                  onError={(e) => e.target.parentElement.style.display = 'none'}
+                  onError={(e) => { e.target.parentElement.style.display = 'none' }}
                 />
               </div>
             )}
@@ -177,8 +198,7 @@ const BlogDetail = () => {
             <div className="p-6 sm:p-10">
 
               <div className="flex flex-wrap items-center gap-3 mb-5">
-                <span className="bg-blue-600 text-white text-xs
-                                 font-semibold px-3 py-1.5 rounded-full">
+                <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
                   {blog.category}
                 </span>
                 <span className="text-gray-400 text-sm">
@@ -189,18 +209,14 @@ const BlogDetail = () => {
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-extrabold
-                             text-gray-900 mb-6 leading-tight">
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
                 {blog.title}
               </h1>
 
-              <div className="flex flex-wrap items-center justify-between
-                              gap-4 pb-6 mb-6 border-b border-gray-100">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-6 mb-6 border-b border-gray-100">
 
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 bg-gradient-to-br from-blue-500
-                                  to-blue-700 rounded-full flex items-center
-                                  justify-center text-white font-bold text-lg">
+                  <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
                     {blog.author?.charAt(0)?.toUpperCase() || '7'}
                   </div>
                   <div>
@@ -220,18 +236,16 @@ const BlogDetail = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleWhatsAppShare}
-                    className="bg-green-500 hover:bg-green-600 text-white
-                               px-4 py-2 rounded-lg text-xs font-semibold
-                               transition flex items-center gap-1.5"
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5"
                   >
                     📱 Share
                   </button>
                   <button
                     onClick={handleCopyLink}
-                    className={`px-4 py-2 rounded-lg text-xs font-semibold
-                               transition ${copied
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    className={`px-4 py-2 rounded-lg text-xs font-semibold transition ${
+                      copied
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }`}
                   >
                     {copied ? '✅ Copied!' : '🔗 Copy Link'}
@@ -269,10 +283,10 @@ const BlogDetail = () => {
                   <p className="text-sm font-bold text-gray-700 mb-3">Tags:</p>
                   <div className="flex flex-wrap gap-2">
                     {blog.tags.map((tag, i) => (
-                      <span key={i}
-                        className="bg-blue-50 text-blue-600 text-xs
-                                   px-3 py-1.5 rounded-full font-medium
-                                   hover:bg-blue-100 cursor-pointer transition">
+                      <span
+                        key={i}
+                        className="bg-blue-50 text-blue-600 text-xs px-3 py-1.5 rounded-full font-medium hover:bg-blue-100 cursor-pointer transition"
+                      >
                         #{tag}
                       </span>
                     ))}
@@ -280,8 +294,7 @@ const BlogDetail = () => {
                 </div>
               )}
 
-              <div className="mt-10 bg-gradient-to-r from-blue-600 to-blue-800
-                              rounded-2xl p-6 text-white text-center">
+              <div className="mt-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white text-center">
                 <p className="text-lg font-bold mb-2">
                   🛍️ Shop at 75TechStore
                 </p>
@@ -291,8 +304,7 @@ const BlogDetail = () => {
                 <div className="flex flex-wrap justify-center gap-3">
                   <button
                     onClick={() => navigate('/shop')}
-                    className="bg-white text-blue-700 px-6 py-2 rounded-lg
-                               font-semibold text-sm hover:bg-blue-50 transition"
+                    className="bg-white text-blue-700 px-6 py-2 rounded-lg font-semibold text-sm hover:bg-blue-50 transition"
                   >
                     🛒 Shop Now
                   </button>
@@ -300,8 +312,7 @@ const BlogDetail = () => {
                     href="https://wa.me/2347035620709"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-green-500 hover:bg-green-600 text-white
-                               px-6 py-2 rounded-lg font-semibold text-sm transition"
+                    className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold text-sm transition"
                   >
                     📱 WhatsApp Us
                   </a>
@@ -320,18 +331,15 @@ const BlogDetail = () => {
                   <div
                     key={related._id}
                     onClick={() => handleRelatedClick(related)}
-                    className="bg-white rounded-xl overflow-hidden shadow-sm
-                               border border-gray-100 hover:-translate-y-1
-                               hover:shadow-md transition cursor-pointer"
+                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:-translate-y-1 hover:shadow-md transition cursor-pointer"
                   >
-                    <div className="h-32 overflow-hidden bg-gradient-to-br
-                                    from-blue-400 to-purple-500">
+                    <div className="h-32 overflow-hidden bg-gradient-to-br from-blue-400 to-purple-500">
                       {related.coverImage ? (
                         <img
                           src={related.coverImage}
                           alt={related.title}
                           className="w-full h-full object-cover"
-                          onError={(e) => e.target.style.display = 'none'}
+                          onError={(e) => { e.target.style.display = 'none' }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
@@ -343,8 +351,7 @@ const BlogDetail = () => {
                       <span className="text-xs text-blue-600 font-medium">
                         {related.category}
                       </span>
-                      <p className="text-sm font-semibold text-gray-900
-                                   line-clamp-2 mt-1 hover:text-blue-600 transition">
+                      <p className="text-sm font-semibold text-gray-900 line-clamp-2 mt-1 hover:text-blue-600 transition">
                         {related.title}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
@@ -360,8 +367,7 @@ const BlogDetail = () => {
           <div className="text-center">
             <button
               onClick={() => navigate('/blog')}
-              className="bg-blue-600 hover:bg-blue-700 text-white
-                         px-8 py-3 rounded-xl font-semibold transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition"
             >
               ← Back to Blog
             </button>

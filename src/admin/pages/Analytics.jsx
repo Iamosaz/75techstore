@@ -16,7 +16,7 @@ const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 const formatNaira = (val) => `₦${Number(val || 0).toLocaleString()}`;
 const formatShortNaira = (val) => {
   const num = Number(val || 0);
-  if (num >= 1000000) return `₦${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000000) return `₦${(num / 1000000).toFixed(1)}M`; 
   if (num >= 1000) return `₦${(num / 1000).toFixed(0)}K`;
   return `₦${num}`;
 };

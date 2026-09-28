@@ -46,14 +46,14 @@ export default function CartPage() {
           <h2 className="text-2xl font-bold text-gray-800">
             Your cart is empty
           </h2>
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-sm">
             Looks like you haven't added anything yet
           </p>
           <Link
             to="/shop"
             className="inline-flex items-center gap-2 bg-blue-600
               text-white px-6 py-3 rounded-xl font-semibold
-              hover:bg-blue-700 transition"
+              hover:bg-blue-700 transition cursor-pointer shadow-md shadow-blue-500/20"
           >
             <FiArrowLeft size={18} />
             Continue Shopping
@@ -80,7 +80,7 @@ export default function CartPage() {
           <button
             onClick={clearCart}
             className="flex items-center gap-2 text-red-500
-              hover:text-red-700 text-sm font-medium transition"
+              hover:text-red-700 text-sm font-medium transition cursor-pointer"
           >
             <FiTrash2 size={16} />
             Clear Cart
@@ -104,7 +104,7 @@ export default function CartPage() {
                     src={item.imageUrl || '/placeholder.png'}
                     alt={item.name}
                     className="w-full h-full object-cover"
-                    onError={(e) => e.target.src = '/placeholder.png'}
+                    onError={(e) => { e.target.src = '/placeholder.png' }}
                   />
                 </div>
 
@@ -138,7 +138,8 @@ export default function CartPage() {
                 <div className="flex flex-col items-end justify-between">
                   <button
                     onClick={() => removeFromCart(item._id)}
-                    className="text-red-400 hover:text-red-600 transition"
+                    className="text-red-400 hover:text-red-600 transition cursor-pointer"
+                    title="Remove item"
                   >
                     <FiTrash2 size={16} />
                   </button>
@@ -151,7 +152,7 @@ export default function CartPage() {
                       }
                       className="w-7 h-7 flex items-center justify-center
                         rounded-lg bg-white shadow-sm hover:bg-red-50
-                        hover:text-red-500 transition"
+                        hover:text-red-500 transition cursor-pointer"
                     >
                       <FiMinus size={12} />
                     </button>
@@ -165,7 +166,7 @@ export default function CartPage() {
                       disabled={item.quantity >= item.stock}
                       className="w-7 h-7 flex items-center justify-center
                         rounded-lg bg-white shadow-sm hover:bg-blue-50
-                        hover:text-blue-500 transition
+                        hover:text-blue-500 transition cursor-pointer
                         disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <FiPlus size={12} />
@@ -178,7 +179,7 @@ export default function CartPage() {
             <Link
               to="/shop"
               className="flex items-center gap-2 text-blue-600
-                hover:text-blue-800 font-medium text-sm transition"
+                hover:text-blue-800 font-medium text-sm transition cursor-pointer pt-2"
             >
               <FiArrowLeft size={16} />
               Continue Shopping
@@ -237,7 +238,7 @@ export default function CartPage() {
                 className="w-full mt-6 bg-blue-600 text-white font-bold
                   py-4 rounded-xl hover:bg-blue-700 active:scale-95
                   transition-all shadow-lg shadow-blue-600/20 flex
-                  items-center justify-center gap-2"
+                  items-center justify-center gap-2 cursor-pointer"
               >
                 Proceed to Checkout
                 <FiArrowRight size={18} />

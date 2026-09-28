@@ -1,13 +1,26 @@
 // src/admin/context/AdminContext.jsx
-import React, { createContext, useState, useCallback } from "react";
+import React, { createContext, useState, useCallback, useEffect } from "react";
 
-// ✅ Export context separately
-export const AdminContext = createContext();
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api';
 
-// ✅ Fixed URL
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`;
+  }
+  return clean;
+};
 
-// ✅ Export provider as default
+const API_URL = getCleanApiUrl();
+
+// 1. Create and Export Context directly here
+export const AdminContext = createContext(null);
+
+// 2. Export Provider Component
 export function AdminProvider({ children }) {
   const [adminUser, setAdminUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,26 +40,30 @@ export function AdminProvider({ children }) {
           body: JSON.stringify({ email, password }),
         });
 
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server returned an invalid non-JSON response.");
+        }
+
         const data = await response.json();
-        console.log("📡 Backend response:", data);
 
         if (!response.ok) {
           throw new Error(data.message || "Login failed");
         }
 
-        if (data.user.role !== "admin") {
+        if (data.user?.role !== "admin") {
           throw new Error("⛔ Access denied. Admin accounts only.");
         }
 
         const user = {
-          id: data.user.id,
+          id: data.user.id || data.user._id,
           name: data.user.name,
           email: data.user.email,
           role: data.user.role,
           avatar:
             data.user.avatar ||
             `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              data.user.name
+              data.user.name || "Admin"
             )}&background=0D8ABC&color=fff`,
         };
 
@@ -54,7 +71,6 @@ export function AdminProvider({ children }) {
         localStorage.setItem("adminUser", JSON.stringify(user));
         setAdminUser(user);
 
-        console.log("✅ Admin login successful:", user.email);
         resolve(user);
       } catch (error) {
         console.error("❌ Admin login failed:", error.message);
@@ -74,7 +90,7 @@ export function AdminProvider({ children }) {
     console.log("🚪 Admin logged out");
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const restoreSession = () => {
       try {
         const userRaw = localStorage.getItem("adminUser");
@@ -83,16 +99,13 @@ export function AdminProvider({ children }) {
         if (userRaw && token) {
           const user = JSON.parse(userRaw);
           if (user.role !== "admin") {
-            console.log(`⛔ Stored user is "${user.role}" - clearing`);
             localStorage.removeItem("adminUser");
             localStorage.removeItem("adminToken");
             setAdminUser(null);
           } else {
-            console.log("✅ Admin session restored:", user.email);
             setAdminUser(user);
           }
         } else {
-          console.log("⚠️ No session found");
           setAdminUser(null);
         }
       } catch (error) {
@@ -132,3 +145,5 @@ export function AdminProvider({ children }) {
     </AdminContext.Provider>
   );
 }
+
+export default AdminProvider;

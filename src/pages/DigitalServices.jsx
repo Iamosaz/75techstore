@@ -6,15 +6,17 @@ import {
   FaShieldAlt, FaCloud, FaPaintBrush, FaBullhorn,
   FaCheckCircle, FaSpinner, FaWhatsapp, FaChevronRight,
   FaStar, FaRocket, FaHeadset, FaCode, FaGlobe,
-  FaCog, FaDatabase, FaEnvelope, FaExternalLinkAlt,
+  FaCog, FaDatabase, FaEnvelope, FaExternalLinkAlt,  
   FaTimes,
 } from 'react-icons/fa'
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 // ── Your WhatsApp number (international format, no +) ──
-const WHATSAPP_NUMBER = '2347035620709' // 
+const WHATSAPP_NUMBER = '2347035620709' 
 
 const VALID_TABS = ['services', 'portfolio', 'reviews', 'quote']
 
@@ -197,7 +199,7 @@ const StarRating = ({ rating, onRate, interactive = false }) => (
     {[1, 2, 3, 4, 5].map((star) => (
       <button
         key={star}
-        type={interactive ? 'button' : 'button'}
+        type="button"
         onClick={() => interactive && onRate && onRate(star)}
         className={interactive ? 'cursor-pointer' : 'cursor-default'}
       >
@@ -360,9 +362,7 @@ const DigitalServices = () => {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* ══════════════════════════════════════════════ */}
       {/* HERO */}
-      {/* ══════════════════════════════════════════════ */}
       <div className="bg-gradient-to-br from-indigo-700 via-indigo-800
         to-purple-900 text-white py-20 px-4 relative overflow-hidden">
 
@@ -445,9 +445,7 @@ const DigitalServices = () => {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════ */}
       {/* TAB: SERVICES */}
-      {/* ══════════════════════════════════════════════ */}
       {activeTab === 'services' && (
         <div className="max-w-7xl mx-auto px-4 py-12">
 
@@ -538,6 +536,7 @@ const DigitalServices = () => {
                       {step.icon}
                     </div>
                   </div>
+                  {/* Fixed typo below (was missing '<') */}
                   <h3 className="font-bold text-gray-900 mb-2 text-sm">
                     {step.title}
                   </h3>
@@ -578,9 +577,7 @@ const DigitalServices = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════ */}
       {/* TAB: PORTFOLIO */}
-      {/* ══════════════════════════════════════════════ */}
       {activeTab === 'portfolio' && (
         <div className="max-w-7xl mx-auto px-4 py-12">
 
@@ -729,9 +726,7 @@ const DigitalServices = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════ */}
       {/* TAB: REVIEWS */}
-      {/* ══════════════════════════════════════════════ */}
       {activeTab === 'reviews' && (
         <div className="max-w-6xl mx-auto px-4 py-12">
 
@@ -1011,9 +1006,7 @@ const DigitalServices = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════ */}
       {/* TAB: GET A QUOTE */}
-      {/* ══════════════════════════════════════════════ */}
       {activeTab === 'quote' && (
         <div className="max-w-4xl mx-auto px-4 py-12">
 

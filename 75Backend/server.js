@@ -204,8 +204,14 @@ app.use("/api/seasonal-products", seasonalProductsRoutes);
 app.use("/api/indexing", indexingRoutes);
 
 // ═══════════════════════════════════════════════════════════
-// HEALTH CHECK
+// HEALTH CHECK & KEEP-ALIVE
 // ═══════════════════════════════════════════════════════════
+
+// ✅ ADDED: Root health route for cron-job.org
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Backend is active" });
+});
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "running",

@@ -8,12 +8,14 @@ import {
 } from 'react-icons/fi';
 import SEO from '../SEO';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
 
 const BlogPage = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -156,7 +158,7 @@ const BlogPage = () => {
               <span className="text-red-700 text-sm font-medium">⚠️ {error}</span>
               <button 
                 onClick={() => window.location.reload()} 
-                className="flex items-center gap-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition"
+                className="flex items-center gap-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer"
               >
                 <FiRotateCw size={12} /> Retry
               </button>
@@ -203,7 +205,7 @@ const BlogPage = () => {
                     setSearchTerm('');
                     setSelectedCategory('');
                   }}
-                  className="text-xs font-bold text-blue-600 hover:text-blue-700 underline"
+                  className="text-xs font-bold text-blue-600 hover:text-blue-700 underline cursor-pointer"
                 >
                   Clear All Filters
                 </button>

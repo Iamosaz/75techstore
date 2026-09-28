@@ -6,6 +6,10 @@ import { useSeasonalTheme } from "../context/SeasonalContext";
 import { useCart } from "../context/CartContext";
 import { getTheme } from "../utils/seasonalThemes";
 
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
+
 export default function SeasonalShop() {
   const { event, country } = useSeasonalTheme();
   const { addToCart } = useCart();
@@ -50,7 +54,7 @@ export default function SeasonalShop() {
     async function fetchSeasonalGadgets() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/seasonal-products?season=${event?.theme || "all"}`);
+        const res = await fetch(`${API_URL}/seasonal-products?season=${event?.theme || "all"}`);
         if (res.ok) {
           const data = await res.json();
           setProducts(data);
@@ -181,7 +185,7 @@ export default function SeasonalShop() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="text-xs bg-gray-100 border rounded-lg px-3 py-2 font-bold outline-none"
+                className="text-xs bg-gray-100 border rounded-lg px-3 py-2 font-bold outline-none cursor-pointer"
               >
                 <option value="discount">Biggest Discount</option>
                 <option value="price-low">Price: Low → High</option>
@@ -197,13 +201,13 @@ export default function SeasonalShop() {
               <button
                 key={c}
                 onClick={() => setActiveCategory(c)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer ${
                   activeCategory === c
                     ? "bg-gray-900 text-white shadow"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                {c === "all" ? " All Deals" : c}
+                {c === "all" ? "All Deals" : c}
               </button>
             ))}
           </div>
@@ -218,16 +222,14 @@ export default function SeasonalShop() {
             <p className="text-gray-400 text-sm">Fetching real-time deals...</p>
           </div>
         ) : filteredProducts.length === 0 ? (
-          /* ✅ Shopper-Friendly clean loading message without developer/admin notices */
           <div className="text-center py-16 bg-white rounded-3xl border p-8 max-w-md mx-auto space-y-5 shadow-sm">
-            <p className="text-5xl"></p>
             <h3 className="text-xl font-bold text-gray-900">Campaign Deals Loading Soon!</h3>
             <p className="text-xs text-gray-500 leading-relaxed">
               We are currently selecting premium devices for this season's offers. Check back soon or visit our main shop to browse existing items.
             </p>
             <Link
               to="/shop"
-              className="inline-flex items-center justify-center bg-gray-900 hover:bg-gray-800 text-white font-extrabold px-6 py-3 rounded-xl text-xs transition shadow-md"
+              className="inline-flex items-center justify-center bg-gray-900 hover:bg-gray-800 text-white font-extrabold px-6 py-3 rounded-xl text-xs transition shadow-md cursor-pointer"
             >
               Browse Main Shop →
             </Link>
@@ -280,7 +282,7 @@ export default function SeasonalShop() {
 
                       <button
                         onClick={(e) => handleAddToCart(product, e)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition ${
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
                           addedId === product._id
                             ? "bg-green-600 text-white"
                             : "bg-yellow-500 hover:bg-yellow-400 text-black shadow hover:shadow-md"

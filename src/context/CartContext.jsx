@@ -126,7 +126,7 @@ export const CartProvider = ({ children }) => {
   )
 }
 
-// ✅ Added export hook (fixes the error across all components)
+// ✅ Export custom hook for clean imports
 export const useCart = () => {
   const context = useContext(CartContext)
   if (!context) {

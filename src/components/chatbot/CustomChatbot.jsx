@@ -6,14 +6,15 @@ import {
   FaRobot,
   FaTimes,
   FaPaperPlane,
-  FaExclamationTriangle,
+  FaExclamationTriangle, 
   FaMinus,
   FaInfoCircle
 } from 'react-icons/fa'
 import { trackEvent } from '../../utils/trafficTracker' // ✅ Link directly to your SEO & Conversion dashboard
 
-// ✅ Use environment variable with a robust fallback
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 export default function CustomChatbot() {
   const [isOpen, setIsOpen] = useState(false)

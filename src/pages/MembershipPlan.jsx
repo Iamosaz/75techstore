@@ -8,7 +8,7 @@ import {
 import PreFooter from '../components/prefooter/PreFooter';
 
 // ✅ Fixed backend URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api'; 
 
 const MembershipPlan = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');

@@ -7,17 +7,53 @@ import {
   FiEye, FiEyeOff, FiRefreshCw, FiLock,
 } from "react-icons/fi";
 
-const API_URL = "http://localhost:5000/api";
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api'
 
-const getToken = () => localStorage.getItem("adminToken");
-const getHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${getToken()}`,
-});
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '')
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`
+  }
+
+  return clean
+}
+
+const API_URL = getCleanApiUrl();
+
+const getToken = () => {
+  try {
+    const adminToken = localStorage.getItem("adminToken");
+    if (adminToken) return adminToken;
+
+    const token = localStorage.getItem("token");
+    if (token) return token;
+
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user?.token) return user.token;
+  } catch (e) {
+    console.error("Token extraction error:", e);
+  }
+  return null;
+};
+
+const getHeaders = () => {
+  const token = getToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
 
 function Skeleton({ className }) {
   return <div className={`animate-pulse bg-gray-200 rounded ${className}`} />;
-}
+} 
 
 function RoleBadge({ role }) {
   const styles = {
@@ -98,8 +134,8 @@ export default function Users() {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        page:   currentPage,
-        limit:  10,
+        page:   String(currentPage),
+        limit:  "10",
         search: searchTerm,
         role:   roleFilter,
       });
@@ -108,7 +144,7 @@ export default function Users() {
       });
       const data = await res.json();
       if (data.success) {
-        setUsers(data.data);
+        setUsers(data.data || []);
         setTotalPages(data.totalPages || 1);
         setTotalUsers(data.total || 0);
       } else {
@@ -151,8 +187,8 @@ export default function Users() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const url    = selectedUser
-        ? `${API_URL}/users/${selectedUser._id}`
+      const url = selectedUser
+        ? `${API_URL}/users/${encodeURIComponent(selectedUser._id)}`
         : `${API_URL}/users`;
       const method = selectedUser ? "PUT" : "POST";
       const body   = { ...formData };
@@ -186,7 +222,7 @@ export default function Users() {
     if (!selectedUser) return;
     setSubmitting(true);
     try {
-      const res  = await fetch(`${API_URL}/users/${selectedUser._id}`, {
+      const res  = await fetch(`${API_URL}/users/${encodeURIComponent(selectedUser._id)}`, {
         method: "DELETE",
         headers: getHeaders(),
       });
@@ -208,7 +244,7 @@ export default function Users() {
 
   const handleToggleStatus = async (user) => {
     try {
-      const res  = await fetch(`${API_URL}/users/${user._id}/status`, {
+      const res  = await fetch(`${API_URL}/users/${encodeURIComponent(user._id)}/status`, {
         method: "PATCH",
         headers: getHeaders(),
         body: JSON.stringify({ isActive: !user.isActive }),
@@ -235,7 +271,7 @@ export default function Users() {
     setSubmitting(true);
     try {
       const res  = await fetch(
-        `${API_URL}/users/${selectedUser._id}/reset-password`,
+        `${API_URL}/users/${encodeURIComponent(selectedUser._id)}/reset-password`,
         {
           method: "PATCH",
           headers: getHeaders(),
@@ -639,7 +675,7 @@ export default function Users() {
             <h3 className="text-lg font-bold text-gray-900 mb-2">Delete User?</h3>
             <p className="text-gray-500 text-sm mb-1">You are about to delete:</p>
             <p className="font-semibold text-gray-900 mb-1">{selectedUser.name}</p>
-            <p className="text-sm text-gray-500 mb-6">{selectedUser.email}</p>
+            <p className="text-sm text-gray-500 mb-1">{selectedUser.email}</p>
             <p className="text-xs text-red-500 mb-6">This action cannot be undone!</p>
             <div className="flex gap-3">
               <button onClick={() => {

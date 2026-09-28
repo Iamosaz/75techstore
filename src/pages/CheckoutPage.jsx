@@ -166,12 +166,10 @@ export default function CheckoutPage() {
           }
         ]
       },
-      // ✅ Correct Paystack v1 callback
       callback: function (response) {
         console.log('✅ Paystack response reference:', response.reference)
         saveOrder(response.reference)
       },
-      // ✅ Correct Paystack v1 close handler
       onClose: function () {
         setLoading(false)
       }
@@ -188,7 +186,7 @@ export default function CheckoutPage() {
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate('/cart')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition cursor-pointer"
           >
             <FiArrowLeft size={20} />
           </button>
@@ -212,7 +210,7 @@ export default function CheckoutPage() {
               </h2>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm mb-4">
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm mb-4 font-medium">
                   ⚠️ {error}
                 </div>
               )}
@@ -407,7 +405,7 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={handlePaystackPayment}
                 disabled={loading || !paystackReady}
-                className="w-full mt-6 bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-600/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full mt-6 bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-600/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>

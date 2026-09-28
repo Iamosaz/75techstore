@@ -8,7 +8,7 @@ import {
 import axios from 'axios'
 
 // ✅ Fix - Hardcoded URL
-const API_URL = 'http://localhost:5000/api'
+const API_URL = 'http://localhost:5000/api' 
 
 const statusConfig = {
   'Booked':            { bg: 'bg-gray-100',   text: 'text-gray-700',   dot: 'bg-gray-500'   },

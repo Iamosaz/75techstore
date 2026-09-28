@@ -4,7 +4,25 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import { FaShoppingCart, FaTimes, FaFire } from 'react-icons/fa'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api'
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '')
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`
+  }
+
+  return clean
+}
+
+const API_URL = getCleanApiUrl()
 
 const ExitIntentPopup = () => {
   const navigate = useNavigate()
@@ -26,7 +44,7 @@ const ExitIntentPopup = () => {
     const hasPurchased = sessionStorage.getItem('hasPurchased') === 'true'
 
     // ✅ Never show if user already purchased
-    if (hasPurchased) return false
+    if (hasPurchased) return false  
 
     // ✅ Never show if already shown this session
     if (sessionStorage.getItem('exitPopupShown') === 'true') return false
@@ -96,7 +114,7 @@ const ExitIntentPopup = () => {
             isFeatured: true
           }
         })
-        products = fallback.data.products || []
+        products = fallback.data?.products || (Array.isArray(fallback.data) ? fallback.data : [])
       }
 
       setDeals(products)
@@ -196,18 +214,14 @@ const ExitIntentPopup = () => {
   if (!showPopup) return null
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center
-                    justify-center z-[9999] p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl
-                      overflow-hidden animate-slideUp">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 animate-fadeIn">
+      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-slideUp">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800
-                        p-6 text-white relative">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white relative">
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 text-white/70
-                       hover:text-white transition text-xl"
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition text-xl"
           >
             <FaTimes />
           </button>
@@ -233,9 +247,7 @@ const ExitIntentPopup = () => {
                   { value: s, label: 'Sec' }
                 ].map((item) => (
                   <div key={item.label} className="text-center">
-                    <div className="bg-white text-blue-700 font-extrabold
-                                    text-xl w-12 h-12 flex items-center
-                                    justify-center rounded-xl shadow-md">
+                    <div className="bg-white text-blue-700 font-extrabold text-xl w-12 h-12 flex items-center justify-center rounded-xl shadow-md">
                       {item.value}
                     </div>
                     <span className="text-[10px] text-blue-200 uppercase">
@@ -256,8 +268,7 @@ const ExitIntentPopup = () => {
 
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="w-8 h-8 border-4 border-blue-600
-                              border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : deals.length === 0 ? (
             <div className="text-center py-4">
@@ -274,20 +285,16 @@ const ExitIntentPopup = () => {
                     setShowPopup(false)
                     navigate(`/product/${product._id}`)
                   }}
-                  className="flex items-center gap-4 bg-gray-50 rounded-2xl
-                             p-3 hover:bg-blue-50 transition cursor-pointer
-                             border border-gray-100 hover:border-blue-200"
+                  className="flex items-center gap-4 bg-gray-50 rounded-2xl p-3 hover:bg-blue-50 transition cursor-pointer border border-gray-100 hover:border-blue-200"
                 >
                   <img
                     src={product.imageUrl || 'https://via.placeholder.com/60'}
                     alt={product.name}
-                    className="w-16 h-16 object-cover rounded-xl
-                               border border-gray-200"
+                    className="w-16 h-16 object-cover rounded-xl border border-gray-200"
                   />
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm
-                                  line-clamp-1">
+                    <p className="font-semibold text-gray-900 text-sm line-clamp-1">
                       {product.name}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
@@ -305,8 +312,7 @@ const ExitIntentPopup = () => {
                         ).toLocaleString()}
                       </span>
                       {product.discount > 0 && (
-                        <span className="bg-red-100 text-red-600 text-xs
-                                         font-bold px-1.5 py-0.5 rounded-full">
+                        <span className="bg-red-100 text-red-600 text-xs font-bold px-1.5 py-0.5 rounded-full">
                           -{Math.round(
                             (product.discount / product.price) * 100
                           )}% OFF
@@ -318,10 +324,9 @@ const ExitIntentPopup = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      console.log('Add to cart:', product._id)
+                      navigate(`/product/${product._id}`)
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white
-                               p-2.5 rounded-full transition shrink-0"
+                    className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-full transition shrink-0"
                   >
                     <FaShoppingCart size={14} />
                   </button>
@@ -334,17 +339,13 @@ const ExitIntentPopup = () => {
           <div className="flex gap-3 mt-5">
             <button
               onClick={handleClose}
-              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200
-                         text-gray-700 rounded-xl text-sm font-medium
-                         transition"
+              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition"
             >
               No Thanks
             </button>
             <button
               onClick={() => handleShopNow()}
-              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700
-                         text-white rounded-xl text-sm font-bold
-                         transition flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition flex items-center justify-center gap-2"
             >
               <FaShoppingCart size={14} />
               Shop All Deals

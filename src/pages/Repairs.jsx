@@ -5,10 +5,16 @@ import { FaTools, FaMobileAlt, FaLaptop, FaDesktop, FaTabletAlt,
   FaGamepad, FaClock, FaPrint, FaTv, FaSearch, FaCheckCircle,
   FaSpinner, FaTruck, FaWalking, FaMapMarkerAlt, FaPhoneAlt,
   FaChevronRight, FaShieldAlt, FaWrench
-} from 'react-icons/fa'
+} from 'react-icons/fa' 
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ✅ Safe parser: Strips any accidental trailing slash from the Vercel env variable
+const getCleanApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
+const API_URL = getCleanApiUrl();
 
 const repairDevices = [
   { icon: <FaMobileAlt size={28} />, name: 'Smartphones',    desc: 'iPhone, Samsung, Tecno, Infinix & more' },
@@ -50,10 +56,8 @@ const statusSteps = [
 const VALID_TABS = ['services', 'book', 'track']
 
 const Repairs = () => {
-  // ✅ Read URL search params
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // ✅ Initialize activeTab from URL ?tab= param
   const getTabFromUrl = () => {
     const tab = searchParams.get('tab')
     return VALID_TABS.includes(tab) ? tab : 'services'
@@ -85,8 +89,6 @@ const Repairs = () => {
   const [trackError, setTrackError]   = useState('')
   const [tracking, setTracking]       = useState(false)
 
-  // ✅ When URL ?tab= changes (e.g. navbar clicks "Track My Repair")
-  // sync activeTab with URL
   useEffect(() => {
     const tab = searchParams.get('tab')
     if (tab && VALID_TABS.includes(tab)) {
@@ -96,20 +98,16 @@ const Repairs = () => {
     }
   }, [searchParams])
 
-  // ✅ Scroll to top whenever activeTab changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [activeTab])
 
-  // ✅ Change tab - updates BOTH state AND URL param
   const changeTab = (tabId) => {
     setActiveTab(tabId)
     setSuccess(false)
     setError('')
     setTrackError('')
     setTrackResult(null)
-
-    // Update URL without page reload
     setSearchParams(tabId === 'services' ? {} : { tab: tabId })
   }
 
@@ -192,7 +190,6 @@ const Repairs = () => {
             certified technicians.
           </p>
 
-          {/* ✅ Tab buttons - uses changeTab() which updates URL */}
           <div className="inline-flex bg-white/10 rounded-xl p-1.5
             backdrop-blur-sm border border-white/20">
             {[
@@ -772,23 +769,27 @@ const Repairs = () => {
                 </div>
               </div>
 
-              <div className="px-6 pb-6 grid grid-cols-2 gap-3">
-                {[
-                  { label: 'Device',     value: `${trackResult.deviceBrand} ${trackResult.deviceModel || ''}` },
-                  { label: 'Type',       value: trackResult.deviceType                                        },
-                  { label: 'Issue',      value: trackResult.issueCategory                                     },
-                  { label: 'Drop-off',   value: trackResult.dropOffMethod                                     },
-                  { label: 'Booked On',  value: new Date(trackResult.createdAt).toLocaleDateString('en-NG')   },
-                  { label: 'Technician', value: trackResult.assignedTechnician || 'Not assigned yet'          },
-                ].map((item) => (
-                  <div key={item.label} className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-[10px] text-gray-500 uppercase
-                      tracking-wider font-semibold">{item.label}</p>
-                    <p className="text-gray-900 font-medium text-sm mt-0.5">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
+              <div className="p-6">
+                <p className="text-xs text-gray-500 font-semibold uppercase
+                  tracking-wider mb-3">Repair Details</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: 'Device',     value: `${trackResult.deviceBrand} ${trackResult.deviceModel || ''}` },
+                    { label: 'Type',       value: trackResult.deviceType                                        },
+                    { label: 'Issue',      value: trackResult.issueCategory                                     },
+                    { label: 'Drop-off',   value: trackResult.dropOffMethod                                     },
+                    { label: 'Booked On',  value: new Date(trackResult.createdAt).toLocaleDateString('en-NG')   },
+                    { label: 'Technician', value: trackResult.assignedTechnician || 'Not assigned yet'          },
+                  ].map((item) => (
+                    <div key={item.label} className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-[10px] text-gray-500 uppercase
+                        tracking-wider font-semibold">{item.label}</p>
+                      <p className="text-gray-900 font-medium text-sm mt-0.5">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {trackResult.diagnosisNotes && (

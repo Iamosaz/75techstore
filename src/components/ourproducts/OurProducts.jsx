@@ -7,7 +7,7 @@ import { CartContext } from "../../context/CartContext"
 
 const OurProducts = () => {
   const navigate = useNavigate()
-  const { products, loading, error } = useProducts({ limit: 20 })
+  const { products = [], loading, error } = useProducts({ limit: 20 })
   const { addToCart, isInCart } = useContext(CartContext)
   
   // Ref to target the sliding container
@@ -116,7 +116,7 @@ const OurProducts = () => {
               return (
                 <div
                   key={product._id}
-                  onClick={() => navigate(`/shop/${product._id}`)}
+                  onClick={() => navigate(`/product/${product._id}`)}
                   className="group bg-white p-3 sm:p-5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative cursor-pointer flex-shrink-0 w-1/2 sm:w-1/3 lg:w-1/4 snap-start"
                 >
                   {/* Jumia Orange Discount Badge */}
@@ -177,7 +177,7 @@ const OurProducts = () => {
             })}
           </div>
 
-          {/* Left Absolute Floating Button (Appears on Hover on Large Screens) */}
+          {/* Left Absolute Floating Button */}
           <button
             onClick={() => handleScroll('left')}
             className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-800 shadow-md p-3 rounded-full hidden lg:group-hover/section:block border border-gray-200 transition-all active:scale-95 cursor-pointer"
@@ -185,7 +185,7 @@ const OurProducts = () => {
             <FaChevronLeft size={16} />
           </button>
 
-          {/* Right Absolute Floating Button (Appears on Hover on Large Screens) */}
+          {/* Right Absolute Floating Button */}
           <button
             onClick={() => handleScroll('right')}
             className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-800 shadow-md p-3 rounded-full hidden lg:group-hover/section:block border border-gray-200 transition-all active:scale-95 cursor-pointer"
@@ -196,7 +196,7 @@ const OurProducts = () => {
       )}
 
       {/* ══════════════════════════════════════════════════════════ */}
-      {/* 🛍️ 2. JUMIA POPULAR PRODUCTS (Single Unified Template)     */}
+      {/* 🛍️ 2. RECOMMENDED PRODUCTS                                */}
       {/* ══════════════════════════════════════════════════════════ */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         
@@ -226,7 +226,7 @@ const OurProducts = () => {
             return (
               <div
                 key={product._id}
-                onClick={() => navigate(`/shop/${product._id}`)}
+                onClick={() => navigate(`/product/${product._id}`)}
                 className="group bg-white p-3 sm:p-5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative cursor-pointer"
               >
                 {/* Discount Badge */}

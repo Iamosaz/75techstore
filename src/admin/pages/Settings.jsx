@@ -7,8 +7,25 @@ import {
 } from "react-icons/fi";
 import { useAdmin } from "../hooks/useAdmin";
 
-// ✅ Fix - Hardcoded URL
-const API_URL = "http://localhost:5000/api";
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api';
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`;
+  }
+
+  return clean;
+};
+
+const API_URL = getCleanApiUrl();
 
 export default function Settings() {
   const { adminUser } = useAdmin();
@@ -41,11 +58,31 @@ export default function Settings() {
     profile: null, password: null, notifications: null,
   });
 
+  // 🛡️ Safe Token Extraction Helper
+  const getAuthToken = () => {
+    try {
+      const adminToken = localStorage.getItem("adminToken");
+      if (adminToken) return adminToken;
+
+      const token = localStorage.getItem("token");
+      if (token) return token;
+
+      const userObj = JSON.parse(localStorage.getItem("user") || "{}");
+      if (userObj?.token) return userObj.token;
+    } catch (e) {
+      console.error("Token extraction failed in settings:", e);
+    }
+    return null;
+  };
+
   // ✅ Auth header helper
-  const authHeader = () => ({
-    Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-    "Content-Type": "application/json",
-  });
+  const authHeader = () => {
+    const token = getAuthToken();
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+  };
 
   // Fetch profile
   useEffect(() => {
@@ -80,7 +117,7 @@ export default function Settings() {
       }
     };
     fetchProfile();
-  }, []);
+  }, [adminUser]);
 
   const showAlert = (section, type, message) => {
     setAlerts((prev) => ({ ...prev, [section]: { type, message } }));
@@ -168,7 +205,6 @@ export default function Settings() {
     }
   };
 
-  // ✅ Fix - Added missing handleNotificationChange function
   const handleNotificationChange = (key) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
   };

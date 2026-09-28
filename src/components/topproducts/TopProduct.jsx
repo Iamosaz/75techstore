@@ -3,12 +3,14 @@ import DealDayCard from "./DealDayCard"
 import TopProductCard from "./TopProductCard"
 import axios from 'axios'
 
-const API_URL = 'http://localhost:5000/api';
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 const TopProduct = () => {
   const [activeTab, setActiveTab] = useState("top")
   const [topProducts, setTopProducts] = useState([])
-  const [bestSelling, setBestSelling] = useState([])
+  const [bestSelling, setBestSelling] = useState([]) 
   const [newArrivals, setNewArrivals] = useState([])
   const [deals, setDeals] = useState([])
   const [loading, setLoading] = useState(true)

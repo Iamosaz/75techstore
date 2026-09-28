@@ -3,15 +3,48 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import {
   FiEdit, FiTrash2, FiPlus, FiEye, FiSearch,
-  FiCalendar, FiFileText, FiX, FiCheck,
-  FiCheckCircle, FiClock, FiZap
+  FiFileText, FiX, FiCheckCircle, FiClock, FiZap
 } from 'react-icons/fi';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api';
 
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`;
+  }
+
+  return clean;
+};
+
+const API_URL = getCleanApiUrl();
+
+// ── 🛡️ SAFE AUTH HEADERS HELPER ──
 const getAdminHeaders = () => {
-  const token = localStorage.getItem('adminToken');
-  return { headers: { Authorization: `Bearer ${token}` } };
+  let token = localStorage.getItem('adminToken') || localStorage.getItem('token');
+  
+  if (!token) {
+    try {
+      const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+      token = userObj?.token || null;
+    } catch {
+      token = null;
+    }
+  }
+
+  return {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  };
 };
 
 const initialFormState = {
@@ -21,7 +54,7 @@ const initialFormState = {
   content: '',
   coverImage: '',
   tags: '',
-  readTime: 4,
+  readTime: 4, 
   status: 'published'
 };
 
@@ -112,7 +145,7 @@ const BlogManager = () => {
 
     try {
       if (editingId) {
-        const { data } = await axios.put(`${API_URL}/blogs/${editingId}`, payload, getAdminHeaders());
+        const { data } = await axios.put(`${API_URL}/blogs/${encodeURIComponent(editingId)}`, payload, getAdminHeaders());
         setBlogs(prev => prev.map(b => (b._id === editingId ? (data.blog || data) : b)));
         showNotification('✅ Article updated successfully!');
       } else {
@@ -132,7 +165,7 @@ const BlogManager = () => {
   const handleToggleStatus = async (blog) => {
     const newStatus = blog.status === 'published' ? 'draft' : 'published';
     try {
-      await axios.put(`${API_URL}/blogs/${blog._id}`, { status: newStatus }, getAdminHeaders());
+      await axios.put(`${API_URL}/blogs/${encodeURIComponent(blog._id)}`, { status: newStatus }, getAdminHeaders());
       setBlogs(prev => prev.map(b => (b._id === blog._id ? { ...b, status: newStatus } : b)));
       showNotification(`Article marked as ${newStatus}!`);
     } catch {
@@ -143,7 +176,7 @@ const BlogManager = () => {
   const handleDelete = async (blogId) => {
     if (!window.confirm('Delete this article permanently?')) return;
     try {
-      await axios.delete(`${API_URL}/blogs/${blogId}`, getAdminHeaders());
+      await axios.delete(`${API_URL}/blogs/${encodeURIComponent(blogId)}`, getAdminHeaders());
       setBlogs(prev => prev.filter(b => b._id !== blogId));
       showNotification('🗑️ Article deleted.');
     } catch {

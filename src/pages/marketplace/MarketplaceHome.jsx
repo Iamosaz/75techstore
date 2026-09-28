@@ -19,6 +19,10 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 
+// ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
+
 const CATEGORIES = [
   { label: "Electronics", slug: "electronics-gadgets",
     image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop" },
@@ -124,7 +128,6 @@ export default function MarketplaceHome() {
   };
 
   const updateFilter = (key, value) => {
-    // Intercept with teaser modal
     setShowTeaser(true);
   };
 
@@ -162,7 +165,7 @@ export default function MarketplaceHome() {
       </div>
 
       {/* ══════════════════════════════════════════════════
-          MARKETPLACE SEARCH BAR — Page level, not navbar
+          MARKETPLACE SEARCH BAR — Page level
       ══════════════════════════════════════════════════ */}
       <div className="bg-[#1a1a2e]">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -209,7 +212,7 @@ export default function MarketplaceHome() {
                   className="absolute right-2 top-1/2 -translate-y-1/2
                              w-8 h-8 bg-orange-500 hover:bg-orange-600
                              rounded-lg flex items-center justify-center
-                             transition-colors">
+                             transition-colors cursor-pointer">
                   <FiSearch size={15} className="text-white" />
                 </button>
               </div>
@@ -222,7 +225,7 @@ export default function MarketplaceHome() {
                          hover:bg-orange-600 text-white font-bold
                          px-5 py-3 rounded-xl text-sm transition-all
                          hover:scale-105 active:scale-95 flex-shrink-0
-                         shadow-lg shadow-orange-500/25"
+                         shadow-lg shadow-orange-500/25 cursor-pointer"
             >
               <FiPlus size={16} />
               <span>Post Ad</span>
@@ -237,7 +240,7 @@ export default function MarketplaceHome() {
                 onClick={() => setShowTeaser(true)}
                 className={`flex items-center gap-1.5 px-3 py-1.5
                             rounded-full text-xs font-medium whitespace-nowrap
-                            transition-all border text-gray-400 border-gray-700 hover:border-orange-500 hover:text-orange-400`}>
+                            transition-all border text-gray-400 border-gray-700 hover:border-orange-500 hover:text-orange-400 cursor-pointer`}>
                 <img src={cat.image} alt={cat.label}
                   className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                 <span>{cat.label}</span>
@@ -291,7 +294,7 @@ export default function MarketplaceHome() {
               {CATEGORIES.map((cat) => (
                 <button key={cat.slug}
                   onClick={() => setShowTeaser(true)}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 hover:scale-105 bg-white/10 hover:bg-white/20">
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-200 hover:scale-105 bg-white/10 hover:bg-white/20 cursor-pointer">
                   <img src={cat.image} alt={cat.label}
                     className="w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover" />
                   <span className="text-xs font-medium text-gray-200 leading-tight text-center">
@@ -309,7 +312,7 @@ export default function MarketplaceHome() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => setShowTeaser(true)}
-              className="flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium transition-all border-gray-300 text-gray-600 hover:border-gray-400">
+              className="flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium transition-all border-gray-300 text-gray-600 hover:border-gray-400 cursor-pointer">
               <FiSliders size={15} /> Filters
             </button>
             <p className="text-sm text-gray-500 hidden sm:block">
@@ -318,7 +321,7 @@ export default function MarketplaceHome() {
           </div>
 
           <button onClick={() => setShowTeaser(true)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-600 hover:border-gray-400">
+            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-600 hover:border-gray-400 cursor-pointer">
             <span className="hidden sm:inline">Sort:</span>
             <span className="font-medium text-gray-800">Newest First</span>
             <FiChevronDown size={14} />
@@ -326,7 +329,7 @@ export default function MarketplaceHome() {
         </div>
       </section>
 
-      {/* ─── Beautiful Marketplace Roadmap Empty State ─── */}
+      {/* Roadmap Empty State */}
       <section className="max-w-4xl mx-auto px-4 py-12 pb-24">
         <div className="bg-white rounded-3xl border border-gray-100 p-8 md:p-12 text-center shadow-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400"></div>
@@ -370,16 +373,14 @@ export default function MarketplaceHome() {
 
           <button
             onClick={() => setShowTeaser(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30"
+            className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-orange-500/30 cursor-pointer"
           >
             Get Notified On Launch
           </button>
         </div>
       </section>
 
-      {/* ──────────────────────────────────────────────────
-          GORGEOUS coming soon GLASSMORPHISM DIALOG MODAL
-      ────────────────────────────────────────────────── */}
+      {/* Teaser Dialog Modal */}
       {showTeaser && (
         <div className="fixed inset-0 bg-gray-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
@@ -392,7 +393,7 @@ export default function MarketplaceHome() {
                 </div>
                 <button
                   onClick={() => setShowTeaser(false)}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition"
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition cursor-pointer"
                 >
                   <FiX size={20} />
                 </button>
@@ -427,7 +428,7 @@ export default function MarketplaceHome() {
               <div className="mt-8 flex gap-3">
                 <button
                   onClick={() => setShowTeaser(false)}
-                  className="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md"
+                  className="w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md cursor-pointer"
                 >
                   Got it, thank you!
                 </button>

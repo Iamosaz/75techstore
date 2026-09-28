@@ -2,10 +2,27 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaCheckCircle, FaTimesCircle, FaSpinner, FaCrown, FaArrowRight } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaCrown, FaArrowRight } from 'react-icons/fa';
 
-// ✅ Fixed Base URL to match your backend port
-const API_URL = 'http://localhost:5000/api';
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api';
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`;
+  }
+
+  return clean;
+};
+
+const API_URL = getCleanApiUrl();
 
 const MembershipVerify = () => {
   const [searchParams] = useSearchParams();
@@ -54,7 +71,7 @@ const MembershipVerify = () => {
 
     // Configure headers properly (do not send "Bearer null")
     const headers = {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
     if (token) {
       headers.Authorization = `Bearer ${token}`;
@@ -62,7 +79,7 @@ const MembershipVerify = () => {
 
     try {
       const response = await axios.get(
-        `${API_URL}/membership/verify/${refCode}`,
+        `${API_URL}/membership/verify/${encodeURIComponent(refCode)}`,
         { headers }
       );
 

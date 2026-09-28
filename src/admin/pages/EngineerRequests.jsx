@@ -1,15 +1,32 @@
 // src/admin/pages/EngineerRequests.jsx
 import React, { useState, useEffect } from 'react'
 import {
-  FiTool, FiUser, FiPhone, FiMapPin,
+  FiTool, FiPhone, FiMapPin,
   FiClock, FiCheck, FiX, FiLoader,
   FiChevronDown, FiSearch, FiRefreshCw,
   FiEdit2, FiSave, FiAlertCircle
 } from 'react-icons/fi'
 import axios from 'axios'
 
-// ✅ Fix - Hardcoded URL
-const API_URL = 'http://localhost:5000/api'
+// ── 🛡️ PRODUCTION TRAILING SLASH & ENDPOINT SAFEGUARD ──
+const getCleanApiUrl = () => {
+  const rawUrl =
+    import.meta.env?.VITE_API_URL ||
+    (typeof process !== 'undefined' && (process.env?.REACT_APP_API_URL || process.env?.NEXT_PUBLIC_API_URL)) ||
+    'http://localhost:5000/api'
+
+  // 1. Remove any trailing slashes
+  let clean = rawUrl.trim().replace(/\/+$/, '')
+
+  // 2. Safely ensure /api suffix is present without doubling
+  if (!clean.endsWith('/api')) {
+    clean = `${clean}/api`
+  }
+
+  return clean
+}
+
+const API_URL = getCleanApiUrl()
 
 const statusConfig = {
   Pending:       { bg: 'bg-yellow-100', text: 'text-yellow-700', dot: 'bg-yellow-500' },
@@ -30,10 +47,26 @@ const EngineerRequests = () => {
   const [saving, setSaving]             = useState(false)
   const [successMsg, setSuccessMsg]     = useState('')
 
-  // ✅ Auth header helper
-  const authHeader = () => ({
-    headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
-  })
+  // ✅ Safe Auth header helper
+  const authHeader = () => {
+    const token =
+      localStorage.getItem('adminToken') ||
+      localStorage.getItem('token') ||
+      (() => {
+        try {
+          return JSON.parse(localStorage.getItem('user') || '{}')?.token
+        } catch {
+          return null
+        }
+      })()
+
+    return {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    }
+  }
 
   const fetchRequests = async () => {
     try {
@@ -48,7 +81,9 @@ const EngineerRequests = () => {
     }
   }
 
-  useEffect(() => { fetchRequests() }, [])
+  useEffect(() => { 
+    fetchRequests() 
+  }, [])
 
   const startEdit = (request) => {
     setEditingId(request._id)
@@ -68,7 +103,7 @@ const EngineerRequests = () => {
     try {
       setSaving(true)
       const { data } = await axios.put(
-        `${API_URL}/engineer/${id}`,
+        `${API_URL}/engineer/${encodeURIComponent(id)}`,
         editData,
         authHeader()
       )
@@ -174,16 +209,23 @@ const EngineerRequests = () => {
       <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-6 flex flex-col md:flex-row gap-3">
         <div className="relative flex-grow">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-          <input type="text" placeholder="Search by customer name, email, brand..."
-            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+          <input 
+            type="text" 
+            placeholder="Search by customer name, email, brand..."
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200
-              text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+              text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+          />
         </div>
         <div className="relative">
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)}
             className="appearance-none pl-4 pr-10 py-2.5 rounded-lg border border-gray-200
               text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white
-              cursor-pointer min-w-[160px]">
+              cursor-pointer min-w-[160px]"
+          >
             <option value="All">All Status</option>
             <option value="Pending">Pending</option>
             <option value="Assigned">Assigned</option>
@@ -229,14 +271,15 @@ const EngineerRequests = () => {
             const sc = statusConfig[request.status] || statusConfig.Pending
 
             return (
-              <div key={request._id}
+              <div 
+                key={request._id}
                 className={`bg-white rounded-xl border shadow-sm overflow-hidden
                   transition-all duration-300 ${
                   isEditing
                     ? 'border-blue-300 shadow-md shadow-blue-100'
                     : 'border-gray-100 hover:border-gray-200'
-                }`}>
-
+                }`}
+              >
                 {/* Top Bar */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between p-5 border-b border-gray-50 gap-3">
                   <div className="flex items-center gap-3">
@@ -259,23 +302,30 @@ const EngineerRequests = () => {
                     </span>
 
                     {!isEditing ? (
-                      <button onClick={() => startEdit(request)}
+                      <button 
+                        onClick={() => startEdit(request)}
                         className="flex items-center gap-1.5 bg-blue-50 text-blue-600
-                          px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-100 transition">
+                          px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-100 transition"
+                      >
                         <FiEdit2 size={13} /> Manage
                       </button>
                     ) : (
                       <div className="flex gap-2">
-                        <button onClick={() => handleSave(request._id)} disabled={saving}
+                        <button 
+                          onClick={() => handleSave(request._id)} 
+                          disabled={saving}
                           className="flex items-center gap-1.5 bg-green-50 text-green-600
                             px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-green-100
-                            transition disabled:opacity-50">
+                            transition disabled:opacity-50"
+                        >
                           {saving ? <FiLoader size={13} className="animate-spin" /> : <FiSave size={13} />}
                           Save
                         </button>
-                        <button onClick={cancelEdit}
+                        <button 
+                          onClick={cancelEdit}
                           className="flex items-center gap-1.5 bg-gray-100 text-gray-600
-                            px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-200 transition">
+                            px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-200 transition"
+                        >
                           <FiX size={13} /> Cancel
                         </button>
                       </div>
@@ -298,9 +348,12 @@ const EngineerRequests = () => {
                       <FiPhone size={10} className="text-gray-500" />
                       <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Contact</p>
                     </div>
-                    <a href={`https://wa.me/${request.contactNumber?.replace(/^0/, '234')}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="text-blue-600 font-medium text-sm hover:underline">
+                    <a 
+                      href={`https://wa.me/${request.contactNumber?.replace(/^0/, '234')}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 font-medium text-sm hover:underline"
+                    >
                       {request.contactNumber}
                     </a>
                   </div>
@@ -340,10 +393,12 @@ const EngineerRequests = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 mb-1.5">Status</label>
-                        <select value={editData.status}
+                        <select 
+                          value={editData.status}
                           onChange={(e) => setEditData({ ...editData, status: e.target.value })}
                           className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
                           <option value="Pending">Pending</option>
                           <option value="Assigned">Assigned</option>
                           <option value="In Progress">In Progress</option>
@@ -355,34 +410,46 @@ const EngineerRequests = () => {
                         <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                           Assigned Engineer
                         </label>
-                        <input type="text" value={editData.assignedEngineerName}
+                        <input 
+                          type="text" 
+                          value={editData.assignedEngineerName}
                           onChange={(e) => setEditData({ ...editData, assignedEngineerName: e.target.value })}
                           placeholder="Enter engineer name..."
                           className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm
-                            focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-gray-700 mb-1.5">Admin Notes</label>
-                        <input type="text" value={editData.adminNotes}
+                        <input 
+                          type="text" 
+                          value={editData.adminNotes}
                           onChange={(e) => setEditData({ ...editData, adminNotes: e.target.value })}
                           placeholder="Internal notes..."
                           className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm
-                            focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        />
                       </div>
                     </div>
 
                     {/* Quick Actions */}
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <a href={`https://wa.me/${request.contactNumber?.replace(/^0/, '234')}?text=${encodeURIComponent(
-                        `Hello ${request.user?.name || 'Customer'}, this is from 75TechStore. Your engineer request for "${request.brand}" has been received. An engineer${editData.assignedEngineerName ? ` (${editData.assignedEngineerName})` : ''} will contact you shortly.`
-                      )}`} target="_blank" rel="noopener noreferrer"
+                      <a 
+                        href={`https://wa.me/${request.contactNumber?.replace(/^0/, '234')}?text=${encodeURIComponent(
+                          `Hello ${request.user?.name || 'Customer'}, this is from 75TechStore. Your engineer request for "${request.brand}" has been received. An engineer${editData.assignedEngineerName ? ` (${editData.assignedEngineerName})` : ''} will contact you shortly.`
+                        )}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 bg-green-600 text-white
-                          px-4 py-2 rounded-lg text-xs font-semibold hover:bg-green-700 transition shadow-sm">
+                          px-4 py-2 rounded-lg text-xs font-semibold hover:bg-green-700 transition shadow-sm"
+                      >
                         📱 Message Customer on WhatsApp
                       </a>
-                      <a href={`tel:${request.contactNumber}`}
+                      <a 
+                        href={`tel:${request.contactNumber}`}
                         className="inline-flex items-center gap-2 bg-blue-600 text-white
-                          px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm">
+                          px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm"
+                      >
                         📞 Call Customer
                       </a>
                     </div>

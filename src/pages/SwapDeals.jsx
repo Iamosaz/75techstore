@@ -7,7 +7,13 @@ import {
 } from 'react-icons/fa'
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ✅ Safe parser: Strips any accidental trailing slash from the Vercel env variable
+const getCleanApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
+const API_URL = getCleanApiUrl();
 
 // ── iPhone models ──
 const iPhoneModels = [
@@ -16,7 +22,7 @@ const iPhoneModels = [
   'iPhone X', 'iPhone XR', 'iPhone XS', 'iPhone XS Max',
   'iPhone 11', 'iPhone 11 Pro', 'iPhone 11 Pro Max',
   'iPhone 12', 'iPhone 12 Mini', 'iPhone 12 Pro', 'iPhone 12 Pro Max',
-  'iPhone 13', 'iPhone 13 Mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max',
+  'iPhone 13', 'iPhone 13 Mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 
   'iPhone 14', 'iPhone 14 Plus', 'iPhone 14 Pro', 'iPhone 14 Pro Max',
   'iPhone 15', 'iPhone 15 Plus', 'iPhone 15 Pro', 'iPhone 15 Pro Max',
 ]
@@ -513,8 +519,7 @@ const SwapDeals = () => {
                   {form.hasRepairs && (
                     <textarea name="repairDetails" value={form.repairDetails}
                       onChange={handleChange} rows="2"
-                      placeholder="Describe the repairs (e.g. screen replaced, 
-charging port fixed...)"
+                      placeholder="Describe the repairs (e.g. screen replaced, charging port fixed...)"
                       className="w-full px-4 py-2.5 rounded-xl border
                         border-gray-200 focus:ring-2 focus:ring-orange-500
                         focus:border-transparent outline-none bg-white
@@ -533,8 +538,7 @@ charging port fixed...)"
                     <textarea name="changedPartsDetails"
                       value={form.changedPartsDetails} onChange={handleChange}
                       rows="2"
-                      placeholder="What parts were changed? 
-(e.g. original screen replaced with aftermarket)"
+                      placeholder="What parts were changed? (e.g. original screen replaced with aftermarket)"
                       className="w-full px-4 py-2.5 rounded-xl border
                         border-gray-200 focus:ring-2 focus:ring-orange-500
                         focus:border-transparent outline-none bg-white
