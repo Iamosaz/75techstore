@@ -12,10 +12,10 @@ import Navbar from "./components/Navbar";
 import CustomChatbot from "./components/chatbot/CustomChatbot";
 import ScrollToTop from "./ScrollToTop";
 import ExitIntentPopup from "./ExitIntentPopup";
-import SEOTracker from "./SEOTracker"; // ✅ Fixed import from src/SEOTracker.jsx
+import SEOTracker from "./SEOTracker";
 
 // Public Pages
-import Home from "./pages/Home";
+import Home from "./pages/Home";   
 import DealDetails from "./pages/DealDetails";
 import Category from "./components/category/Category";
 import Category2 from "./components/category/Category2";
@@ -37,6 +37,10 @@ import ServicesPage from "./pages/ServicesPage";
 import SwapDeals from "./pages/SwapDeals";
 import SeasonalShop from "./pages/SeasonalShop";
 import MarketplaceHome from "./pages/marketplace/MarketplaceHome";
+
+// Legal & Policy Pages
+import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Membership Pages
 import MembershipBenefits from "./pages/MembershipBenefits";
@@ -84,6 +88,12 @@ function AppContent() {
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/marketplace" element={<MarketplaceHome />} />
 
+          {/* ── Legal & Policy Pages ── */}
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
           {/* ── Deals & Categories ── */}
           <Route path="/deals" element={<SeasonalShop />} />
           <Route path="/deals/:id" element={<DealDetails />} />
@@ -109,7 +119,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* ── Membership (✅ All Route Formats Supported) ── */}
+          {/* ── Membership (All Route Formats Supported) ── */}
           <Route path="/membership" element={<MembershipBenefits />} />
           <Route path="/membership-benefits" element={<MembershipBenefits />} />
           <Route path="/membership-plan" element={<MembershipPlan />} />
