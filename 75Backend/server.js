@@ -27,7 +27,7 @@ import {
   blockMaliciousAgents,
   ipBlacklistMiddleware,
   requestSizeLimiter,
-} from "./middleware/Security.js";
+} from "./middleware/security.js";
 import { auditLogger, securityLog } from "./middleware/securityLogger.js";
 
 // ── Routes ───────────────────────────────────────────────
@@ -54,6 +54,7 @@ import seasonal             from './routes/seasonal.js';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
+const __dirname = path.resolve();
 
 // ═══════════════════════════════════════════════════════════
 // SECURE RATE LIMIT WRAPPERS
@@ -76,21 +77,17 @@ const secureGlobalRateLimit = (req, res, next) => {
 app.set("trust proxy", 1);
 
 // ═══════════════════════════════════════════════════════════
-// SECURITY STACK — 12 Layers (100% intact)
+// SECURITY STACK — 12 Layers
 // ═══════════════════════════════════════════════════════════
 app.use(blockAttackPaths);
 app.use(blockMaliciousAgents);
 app.use(ipBlacklistMiddleware);
 app.use(securityHeaders);
 
-// ✅ UPDATED CORS POLICY: Allows your exact Vercel site and all future Vercel deployments
 app.use(cors({
   origin: [
     'https://www.75techstore.com.ng',
     'https://75techstore.com.ng',
-    'https://75techstore-lfy8.vercel.app',
-    'https://75techstore.vercel.app',
-    /\.vercel\.app$/, // Allows all Vercel preview & production subdomains
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
@@ -160,17 +157,16 @@ app.post(
 );
 
 // ═══════════════════════════════════════════════════════════
-// STANDARD MIDDLEWARE
+// STANDARD BODY PARSER MIDDLEWARE
 // ═══════════════════════════════════════════════════════════
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
 // ═══════════════════════════════════════════════════════════
-// SPEED: STATIC FILE CACHING
+// STATIC UPLOADS DIRECTORY
 // ═══════════════════════════════════════════════════════════
-const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads'), {
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   maxAge: '30d',
   immutable: true,
   setHeaders: (res) => {
@@ -203,15 +199,7 @@ app.use('/api/seasonal', seasonal);
 app.use("/api/seasonal-products", seasonalProductsRoutes);
 app.use("/api/indexing", indexingRoutes);
 
-// ═══════════════════════════════════════════════════════════
-// HEALTH CHECK & KEEP-ALIVE
-// ═══════════════════════════════════════════════════════════
-
-// ✅ ADDED: Root health route for cron-job.org
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Backend is active" });
-});
-
+// Health Check
 app.get("/api/health", (req, res) => {
   res.json({
     status: "running",
@@ -221,13 +209,20 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.get("/", (req, res) => {
-  res.send("75TechStore Backend API is running... 🚀🔒");
+// ═══════════════════════════════════════════════════════════
+// PRODUCTION FRONTEND (React App)
+// ═══════════════════════════════════════════════════════════
+// Serve static frontend build assets
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// 404 Handler for undefined API routes  ✅ Express 5 named wildcard
+app.use('/api/*path', (req, res) => {
+  res.status(404).json({ success: false, message: "API route not found" });
 });
 
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: "Route not found" });
+// Catch-all route to serve the React index.html for all client pages  ✅ Express 5 named wildcard
+app.get('/*path', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
 });
 
 // Global Error Handler
