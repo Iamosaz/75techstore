@@ -88,6 +88,8 @@ app.use(cors({
   origin: [
     'https://www.75techstore.com.ng',
     'https://75techstore.com.ng',
+    'https://75techstore-bzp6.vercel.app',
+    /^https:\/\/75techstore-bzp6.*\.vercel\.app$/,
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
@@ -215,12 +217,12 @@ app.get("/api/health", (req, res) => {
 // Serve static frontend build assets
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// 404 Handler for undefined API routes  ✅ Express 5 named wildcard
+// 404 Handler for undefined API routes
 app.use('/api/*path', (req, res) => {
   res.status(404).json({ success: false, message: "API route not found" });
 });
 
-// Catch-all route to serve the React index.html for all client pages  ✅ Express 5 named wildcard
+// Catch-all route to serve the React index.html for all client pages
 app.get('/*path', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
 });
