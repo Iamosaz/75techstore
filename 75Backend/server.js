@@ -77,19 +77,14 @@ const secureGlobalRateLimit = (req, res, next) => {
 app.set("trust proxy", 1);
 
 // ═══════════════════════════════════════════════════════════
-// SECURITY STACK — 12 Layers
+// CORS — MUST BE FIRST (before security middleware)
+// so preflight OPTIONS requests always get CORS headers
 // ═══════════════════════════════════════════════════════════
-app.use(blockAttackPaths);
-app.use(blockMaliciousAgents);
-app.use(ipBlacklistMiddleware);
-app.use(securityHeaders);
-
 app.use(cors({
   origin: [
     'https://www.75techstore.com.ng',
     'https://75techstore.com.ng',
-    'https://75techstore-bzp6.vercel.app',
-    /^https:\/\/75techstore-bzp6.*\.vercel\.app$/,
+    /^https:\/\/75techstore.*\.vercel\.app$/,
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
@@ -101,6 +96,13 @@ app.use(cors({
   maxAge: 86400,
 }));
 
+// ═══════════════════════════════════════════════════════════
+// SECURITY STACK — 12 Layers (AFTER CORS)
+// ═══════════════════════════════════════════════════════════
+app.use(blockAttackPaths);
+app.use(blockMaliciousAgents);
+app.use(ipBlacklistMiddleware);
+app.use(securityHeaders);
 app.use(auditLogger);
 app.use(detectAttacks);
 app.use(requestSizeLimiter);
@@ -214,7 +216,6 @@ app.get("/api/health", (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // PRODUCTION FRONTEND (React App)
 // ═══════════════════════════════════════════════════════════
-// Serve static frontend build assets
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // 404 Handler for undefined API routes
