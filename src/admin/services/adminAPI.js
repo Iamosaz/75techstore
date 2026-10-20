@@ -283,7 +283,6 @@ export const productAPI = {
 
 // ========== ORDERS API ==========
 export const orderAPI = {
-  // ✅ Admin - get all orders
   getAll: async (page = 1, limit = 20, status = "", search = "") => {
     console.log(`🛒 Fetching orders - Page: ${page}, Status: ${status}`);
     const params = new URLSearchParams({ page, limit });
@@ -294,7 +293,6 @@ export const orderAPI = {
     });
   },
 
-  // ✅ Admin - get single order
   getById: async (id) => {
     console.log(`🛒 Fetching order: ${id}`);
     return fetchWithTimeout(`${API_BASE_URL}/orders/${id}`, {
@@ -302,7 +300,6 @@ export const orderAPI = {
     });
   },
 
-  // ✅ Admin - update order status
   updateStatus: async (id, data) => {
     console.log(`🔄 Updating order: ${id} -> ${data.orderStatus}`);
     return fetchWithTimeout(`${API_BASE_URL}/orders/${id}/status`, {
@@ -311,7 +308,6 @@ export const orderAPI = {
     });
   },
 
-  // ✅ Public - track order by order number (no token needed)
   trackOrder: async (orderNumber) => {
     console.log(`🔍 Tracking order: ${orderNumber}`);
     const response = await fetch(
@@ -325,7 +321,6 @@ export const orderAPI = {
     return response.json();
   },
 
-  // ✅ Customer - cancel order (uses customer token)
   cancelOrder: async (id, cancelReason) => {
     console.log(`❌ Cancelling order: ${id}`);
     return customerFetch(`${API_BASE_URL}/orders/${id}/cancel`, {
@@ -334,7 +329,6 @@ export const orderAPI = {
     });
   },
 
-  // ✅ Customer - get my orders (uses customer token)
   getMyOrders: async () => {
     console.log("📦 Fetching my orders");
     return customerFetch(`${API_BASE_URL}/orders/my-orders`, {
@@ -342,7 +336,6 @@ export const orderAPI = {
     });
   },
 
-  // ✅ Customer - create order (uses customer token)
   createOrder: async (orderData) => {
     console.log("🛒 Creating order");
     return customerFetch(`${API_BASE_URL}/orders`, {
@@ -474,6 +467,44 @@ export const blogAPI = {
   },
 };
 
+// ========== SEO API ==========
+export const seoAPI = {
+  getSitemap: async () => {
+    console.log("🗺️ Fetching sitemap");
+    const response = await fetch(`${API_BASE_URL}/seo/sitemap.xml`);
+    if (!response.ok) throw new Error("Failed to fetch sitemap");
+    return await response.text();
+  },
+
+  getRobots: async () => {
+    console.log("🤖 Fetching robots.txt");
+    const response = await fetch(`${API_BASE_URL}/seo/robots.txt`);
+    if (!response.ok) throw new Error("Failed to fetch robots.txt");
+    return await response.text();
+  },
+
+  getStructuredData: async () => {
+    console.log("📊 Fetching structured data");
+    return fetchWithTimeout(`${API_BASE_URL}/seo/structured-data`, {
+      method: "GET",
+    });
+  },
+
+  pingSearchEngines: async () => {
+    console.log("📡 Pinging search engines");
+    return fetchWithTimeout(`${API_BASE_URL}/seo/ping`, {
+      method: "POST",
+    });
+  },
+
+  getSeoHealth: async () => {
+    console.log("🩺 Checking SEO health");
+    return fetchWithTimeout(`${API_BASE_URL}/seo/health`, {
+      method: "GET",
+    });
+  },
+};
+
 // ========== DEFAULT EXPORT ==========
 export default {
   authAPI,
@@ -482,4 +513,5 @@ export default {
   orderAPI,
   analyticsAPI,
   blogAPI,
+  seoAPI,
 };
