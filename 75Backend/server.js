@@ -51,6 +51,7 @@ import newsletterRoutes     from './routes/newsletterRoutes.js';
 import contactRoutes        from './routes/contactRoutes.js';
 import membershipRoutes     from './routes/membershipRoutes.js';
 import seasonal             from './routes/seasonal.js';
+import seoRoutes            from './routes/seo.js';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -202,6 +203,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/seasonal', seasonal);
 app.use("/api/seasonal-products", seasonalProductsRoutes);
 app.use("/api/indexing", indexingRoutes);
+app.use('/api/seo', seoRoutes);
 
 // Health Check
 app.get("/api/health", (req, res) => {
