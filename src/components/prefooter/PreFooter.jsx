@@ -397,23 +397,6 @@ const PreFooter = () => {
           </div>
         </div>
 
-        {/* ── TECHBEHEMOTHS VERIFICATION BADGE ── */}
-        <div className="mt-6 flex justify-center">
-          <a
-            href="https://techbehemoths.com/company/75techstore"
-            target="_blank"
-            rel="noopener noreferrer"
-            data-techbehemoths-verification
-            className="opacity-60 hover:opacity-100 transition-opacity duration-300"
-          >
-            <img
-              src="https://cdn.techbehemoths.com/public/static/validation/tb-verified-logo.svg"
-              alt="TechBehemoths Verification"
-              className="h-8 w-auto"
-            />
-          </a>
-        </div>
-
       </div>
     </section>
   )
