@@ -33,7 +33,8 @@ const SEO = ({
   const siteName = '75TechStore';
   const legalName = 'Seven Five Techstore Limited';
   const siteUrl = 'https://www.75techstore.com.ng';
-  const defaultImage = 'https://www.75techstore.com.ng/og-image.jpg';
+  const defaultImage = `${siteUrl}/og-image.jpg`;
+  const defaultLogo = `${siteUrl}/logo.png`;
   const defaultDescription =
     '75TechStore — Lagos-based tech company selling brand new & UK-used iPhones, laptops, desktops, and accessories. Software development, laptop repairs, and IT consulting. Nationwide delivery. RC: 8681711.';
   const defaultKeywords =
@@ -55,7 +56,7 @@ const SEO = ({
     "legalName": legalName,
     "alternateName": ["75 Tech Store", "75Tech", "Seven Five Techstore", "75techstore Limited"],
     "url": siteUrl,
-    "logo": `${siteUrl}/logo.png`,
+    "logo": defaultLogo,
     "image": defaultImage,
     "description": defaultDescription,
     "foundingDate": "2020",
@@ -282,7 +283,7 @@ const SEO = ({
         "publisher": {
           "@type": "Organization",
           "name": siteName,
-          "logo": { "@type": "ImageObject", "url": `${siteUrl}/logo.png` }
+          "logo": { "@type": "ImageObject", "url": defaultLogo }
         },
         "datePublished": publishedTime,
         "dateModified": modifiedTime || publishedTime,
@@ -359,6 +360,7 @@ const SEO = ({
 
   return (
     <Helmet>
+      {/* ────── Basic SEO ────── */}
       <title>{fullTitle}</title>
       <meta name="description" content={fullDescription} />
       <meta name="keywords" content={fullKeywords} />
@@ -379,6 +381,14 @@ const SEO = ({
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-title" content={siteName} />
 
+      {/* ────── Favicon & App Icons ────── */}
+      <link rel="icon" type="image/png" href={`${siteUrl}/logo.png`} />
+      <link rel="shortcut icon" type="image/png" href={`${siteUrl}/logo.png`} />
+      <link rel="apple-touch-icon" sizes="192x192" href={`${siteUrl}/logo-192.png`} />
+      <link rel="icon" type="image/png" sizes="192x192" href={`${siteUrl}/logo-192.png`} />
+      <link rel="icon" type="image/png" sizes="512x512" href={`${siteUrl}/logo-512.png`} />
+
+      {/* ────── AI Crawler Permissions (AEO/GEO) ────── */}
       <meta name="ChatGPT-User" content="index, follow" />
       <meta name="GPTBot" content="index, follow" />
       <meta name="Google-Extended" content="index, follow" />
@@ -389,12 +399,14 @@ const SEO = ({
       <meta name="OAI-SearchBot" content="index, follow" />
       <meta name="cohere-ai" content="index, follow" />
 
+      {/* ────── hreflang ────── */}
       {hreflang.map((h) => (
         <link key={h.lang} rel="alternate" hrefLang={h.lang} href={h.url} />
       ))}
       <link rel="alternate" hrefLang="x-default" href={siteUrl} />
       <link rel="alternate" hrefLang="en-NG" href={siteUrl} />
 
+      {/* ────── Open Graph ────── */}
       <meta property="og:type" content={type} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={fullDescription} />
@@ -434,6 +446,7 @@ const SEO = ({
         </>
       )}
 
+      {/* ────── Twitter/X Card ────── */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@75techstore" />
       <meta name="twitter:creator" content="@75techstore" />
@@ -450,13 +463,16 @@ const SEO = ({
         </>
       )}
 
+      {/* ────── Pinterest ────── */}
       <meta name="pinterest-rich-pin" content="true" />
 
+      {/* ────── DNS Prefetch (Performance) ────── */}
       <link rel="dns-prefetch" href="https://res.cloudinary.com" />
       <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
       <link rel="dns-prefetch" href="https://api.paystack.co" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
 
+      {/* ────── Structured Data (JSON-LD) ────── */}
       <script type="application/ld+json">{JSON.stringify(organizationSchema)}</script>
       <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
       <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
