@@ -7,8 +7,9 @@ import {
 } from 'react-icons/fi'
 import axios from 'axios'
 
-// ✅ Fix - Hardcoded URL
-const API_URL = 'http://localhost:5000/api' 
+// ✅ Fixed: uses VITE_API_URL in production, falls back to localhost for local dev
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = RAW_API_URL.replace(/\/+$/, '')
 
 const statusConfig = {
   'Booked':            { bg: 'bg-gray-100',   text: 'text-gray-700',   dot: 'bg-gray-500'   },
@@ -20,6 +21,16 @@ const statusConfig = {
   'Ready for Pickup':  { bg: 'bg-orange-100', text: 'text-orange-700', dot: 'bg-orange-500' },
   'Completed':         { bg: 'bg-green-100',  text: 'text-green-700',  dot: 'bg-green-500'  },
   'Cancelled':         { bg: 'bg-red-100',    text: 'text-red-700',    dot: 'bg-red-500'    },
+}
+
+// ✅ Full class names so Tailwind keeps them in the production build
+const statColors = {
+  blue:   'text-blue-600',
+  gray:   'text-gray-600',
+  purple: 'text-purple-600',
+  yellow: 'text-yellow-600',
+  orange: 'text-orange-600',
+  green:  'text-green-600',
 }
 
 const AdminRepairs = () => {
@@ -169,7 +180,7 @@ const AdminRepairs = () => {
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-3 shadow-sm text-center">
             <p className="text-xs text-gray-500 font-medium">{s.label}</p>
-            <p className={`text-xl font-bold text-${s.color}-600 mt-0.5`}>{s.value}</p>
+            <p className={`text-xl font-bold ${statColors[s.color]} mt-0.5`}>{s.value}</p>
           </div>
         ))}
       </div>
