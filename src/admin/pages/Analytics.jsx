@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import {
   FiTrendingUp, FiSearch, FiShoppingBag, FiMessageCircle,
-  FiGlobe, FiDollarSign, FiActivity, FiRefreshCw
+  FiGlobe, FiDollarSign, FiActivity, FiRefreshCw, FiUsers, FiShield
 } from 'react-icons/fi';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -19,6 +19,33 @@ const formatShortNaira = (val) => {
   if (num >= 1000000) return `₦${(num / 1000000).toFixed(1)}M`; 
   if (num >= 1000) return `₦${(num / 1000).toFixed(0)}K`;
   return `₦${num}`;
+};
+
+// Lead types sent by the tracker
+const LEAD_LABELS = {
+  whatsapp_click: { icon: '💬', label: 'WhatsApp chats' },
+  call_click: { icon: '📞', label: 'Phone calls' },
+  email_click: { icon: '✉️', label: 'Email clicks' },
+  lead: { icon: '📝', label: 'Form submissions' },
+};
+
+// Icon for a traffic channel label such as "🔍 Google Search"
+const channelIcon = (label = '') => {
+  const l = String(label);
+  if (l.includes('Google')) return '🔍';
+  if (l.includes('Bing') || l.includes('Yahoo') || l.includes('DuckDuckGo')) return '🔍';
+  if (l.includes('AI')) return '🤖';
+  if (l.includes('WhatsApp')) return '💬';
+  if (l.includes('Instagram')) return '📸';
+  if (l.includes('Facebook')) return '🌐';
+  if (l.includes('TikTok')) return '🎵';
+  if (l.includes('Twitter') || l.includes('X /')) return '🐦';
+  if (l.includes('LinkedIn')) return '💼';
+  if (l.includes('YouTube')) return '▶️';
+  if (l.includes('Campaign')) return '🎯';
+  if (l.includes('Referral')) return '🔗';
+  if (l.includes('Direct')) return '📱';
+  return '🌐';
 };
 
 const StatCard = ({ icon, label, value, subText, color }) => (
@@ -34,7 +61,7 @@ const StatCard = ({ icon, label, value, subText, color }) => (
   </div>
 );
 
-const MetricCard = ({ icon, label, value, badge, bg }) => (
+const MetricCard = ({ icon, label, value, badge, bg, note }) => (
   <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between space-y-3">
     <div className="flex items-center justify-between">
       <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center text-lg`}>
@@ -45,6 +72,7 @@ const MetricCard = ({ icon, label, value, badge, bg }) => (
     <div>
       <p className="text-xs text-gray-500 font-semibold">{label}</p>
       <p className="text-2xl font-black text-gray-900 mt-1">{value}</p>
+      {note && <p className="text-[10px] text-gray-400 mt-1 font-medium">{note}</p>}
     </div>
   </div>
 );
@@ -158,6 +186,23 @@ export default function Analytics() {
   const { summary = {}, activities = [], lowStockItems = [], ordersByStatus = [], charts = {} } = operationsData || {};
   const seo = seoData || {};
 
+  // ── Human-traffic numbers (new fields come from the updated backend) ──
+  const seoSummary = seo.summary || {};
+  const humanPageviews = seoSummary.humanPageviews ?? seoSummary.totalSessions ?? 0;
+  const allPageviews = seoSummary.allPageviews ?? humanPageviews;
+  const filteredOut = seoSummary.nonHumanOrLegacyPageviews ?? 0;
+  const humanSessions = seoSummary.humanSessions ?? 0;
+  const uniqueVisitors = seoSummary.uniqueVisitors ?? 0;
+
+  const leadSummary = seo.leadSummary || [];
+  const leadsBySource = seo.leadsBySource || [];
+  const countForLead = (key) => leadSummary.find((l) => l._id === key)?.count || 0;
+  const totalLeads = leadSummary.reduce((sum, l) => sum + (l.count || 0), 0);
+  const maxLeadSource = Math.max(1, ...leadsBySource.map((l) => l.count || 0));
+
+  const channelConversionsSum = (seo.trafficSources || []).reduce((sum, c) => sum + (c.conversions || 0), 0);
+  const showAttributionNote = (seoSummary.totalConversions || 0) > 0 && channelConversionsSum === 0;
+
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen space-y-6">
 
@@ -175,7 +220,7 @@ export default function Analytics() {
               <span className="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75" />
               <span className="relative rounded-full h-2 w-2 bg-green-500" />
             </span>
-            Live tracking active · {lastUpdated?.toLocaleTimeString()}
+            Auto-refreshes every 60s · Updated {lastUpdated?.toLocaleTimeString()}
           </p>
         </div>
 
@@ -361,35 +406,131 @@ export default function Analytics() {
       {/* ═══ TAB 2: SEO & TRAFFIC CHANNELS ═══ */}
       {activeTab === 'seo' && (
         <>
+          {/* No human data yet, but older records exist */}
+          {humanPageviews === 0 && allPageviews > 0 && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-xs sm:text-sm font-medium">
+              No confirmed human visits in this period yet. {allPageviews.toLocaleString()} older records were
+              recorded before human verification started and are excluded from these numbers.
+              Human data appears once the updated website and backend are live.
+            </div>
+          )}
+
+          {/* Human traffic */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <MetricCard
               icon={<FiGlobe className="text-blue-600" />}
-              label="Tracked Pageviews"
-              value={seo.summary?.totalSessions?.toLocaleString() || 0}
-              badge="Live Traffic"
+              label="Human Pageviews"
+              value={humanPageviews.toLocaleString()}
+              badge="Verified"
               bg="bg-blue-50"
+              note="Only visitors who interacted with the page"
+            />
+            <MetricCard
+              icon={<FiUsers className="text-sky-600" />}
+              label="Unique Visitors"
+              value={uniqueVisitors.toLocaleString()}
+              badge="People"
+              bg="bg-sky-50"
+              note="Distinct people, not repeat views"
+            />
+            <MetricCard
+              icon={<FiActivity className="text-indigo-600" />}
+              label="Visits (Sessions)"
+              value={humanSessions.toLocaleString()}
+              badge="Human"
+              bg="bg-indigo-50"
+              note="A visit ends after 30 min idle"
+            />
+            <MetricCard
+              icon={<FiShield className="text-gray-600" />}
+              label="Bots & Old Data Filtered"
+              value={filteredOut.toLocaleString()}
+              badge="Excluded"
+              bg="bg-gray-100"
+              note={`${allPageviews.toLocaleString()} recorded · ${humanPageviews.toLocaleString()} human`}
+            />
+          </div>
+
+          {/* Sales + leads */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <MetricCard
+              icon={<FiMessageCircle className="text-green-600" />}
+              label="Total Leads"
+              value={totalLeads.toLocaleString()}
+              badge="Human"
+              bg="bg-green-50"
+              note="WhatsApp, calls, emails and forms"
             />
             <MetricCard
               icon={<FiDollarSign className="text-green-600" />}
               label="Attributed Revenue"
-              value={formatNaira(seo.summary?.totalRevenue)}
+              value={formatNaira(seoSummary.totalRevenue)}
               badge="Total Sales"
               bg="bg-green-50"
             />
             <MetricCard
               icon={<FiShoppingBag className="text-purple-600" />}
               label="Orders Converted"
-              value={seo.summary?.totalConversions?.toLocaleString() || 0}
+              value={(seoSummary.totalConversions || 0).toLocaleString()}
               badge="Purchases"
               bg="bg-purple-50"
             />
             <MetricCard
-              icon={<FiActivity className="text-amber-600" />}
+              icon={<FiTrendingUp className="text-amber-600" />}
               label="Conversion Rate"
-              value={seo.summary?.conversionRate || "0.00%"}
+              value={seoSummary.conversionRate || "0.00%"}
               badge="Visit-to-Order"
               bg="bg-amber-50"
+              note="Orders ÷ human visits"
             />
+          </div>
+
+          {/* Leads: by type and by channel */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 space-y-4">
+              <h2 className="text-base font-bold text-gray-900 flex items-center gap-2 border-b pb-3">
+                <FiMessageCircle className="text-green-600" /> Leads by Type
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                {Object.entries(LEAD_LABELS).map(([key, meta]) => (
+                  <div key={key} className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-lg">{meta.icon}</p>
+                    <p className="text-xl font-black text-gray-900">{countForLead(key)}</p>
+                    <p className="text-[10px] text-gray-500 font-semibold uppercase">{meta.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 space-y-4">
+              <h2 className="text-base font-bold text-gray-900 flex items-center gap-2 border-b pb-3">
+                <FiSearch className="text-blue-600" /> Where Leads Come From
+              </h2>
+              {leadsBySource.length === 0 ? (
+                <p className="text-center text-gray-400 py-6 text-xs">
+                  Leads will appear here with the channel that produced them.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {leadsBySource.map((item) => (
+                    <div key={item._id} className="text-xs">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-gray-800 truncate max-w-[240px]">
+                          {channelIcon(item._id)} {item._id || 'Unknown'}
+                        </span>
+                        <span className="font-black text-gray-900">{item.count}</span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-500 rounded-full"
+                          style={{ width: `${Math.round(((item.count || 0) / maxLeadSource) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -398,7 +539,7 @@ export default function Analytics() {
                 <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
                   <FiSearch className="text-blue-600" /> Traffic Channel & Lead Attribution
                 </h2>
-                <span className="text-xs font-semibold text-gray-400">Visitor Origins</span>
+                <span className="text-xs font-semibold text-gray-400">Human Visitor Origins</span>
               </div>
 
               <div className="divide-y divide-gray-100">
@@ -406,9 +547,7 @@ export default function Analytics() {
                   <div key={source._id} className="py-3.5 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <span className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm font-bold">
-                        {source._id.includes("Google") ? "🔍" :
-                         source._id.includes("AI") ? "🤖" :
-                         source._id.includes("WhatsApp") ? "💬" : "🌐"}
+                        {channelIcon(source._id)}
                       </span>
                       <div>
                         <p className="text-sm font-bold text-gray-900">{source._id}</p>
@@ -426,12 +565,18 @@ export default function Analytics() {
                   </div>
                 ))}
               </div>
+
+              {showAttributionNote && (
+                <p className="text-[10px] text-gray-400 font-medium">
+                  Orders and revenue per channel will fill in once orders record where the customer came from.
+                </p>
+              )}
             </div>
 
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 space-y-4">
                 <h2 className="text-base font-bold text-gray-900 flex items-center gap-2 border-b pb-3">
-                  <FiTrendingUp className="text-green-600" /> Top Content That Sells
+                  <FiTrendingUp className="text-green-600" /> Top Pages (Human Views)
                 </h2>
                 <div className="space-y-3">
                   {seo.topPages?.length === 0 ? (
@@ -443,8 +588,8 @@ export default function Analytics() {
                           <span className="font-bold text-gray-800">{i + 1}. {page._id}</span>
                           <p className="text-[10px] text-gray-400">{page.views} views</p>
                         </div>
-                        <span className="font-extrabold text-green-700">
-                          {formatNaira(page.revenue)}
+                        <span className="font-extrabold text-gray-700">
+                          {humanPageviews > 0 ? `${Math.round((page.views / humanPageviews) * 100)}%` : '0%'}
                         </span>
                       </div>
                     ))

@@ -23,19 +23,83 @@ try {
   AnalyticsEvent = mongoose.model('AnalyticsEvent');
 } catch {
   const analyticsEventSchema = new mongoose.Schema({
-    eventType: { type: String, default: 'pageview' }, // 'pageview' | 'whatsapp_click'
+    // 'pageview' | 'whatsapp_click' | 'call_click' | 'email_click' | 'lead'
+    eventType: { type: String, default: 'pageview', index: true },
     page: { type: String, default: '/' },
+    landingPage: { type: String, default: '' },
     source: { type: String, default: '📱 Direct Traffic' },
+    trafficSource: { type: String, default: '' }, // visitor's real channel (used for lead attribution)
     device: { type: String, default: 'Desktop' },
     referrer: { type: String, default: '' },
+    leadType: { type: String, default: '' }, // only for eventType 'lead' (repair_request, contact_form, ...)
+    visitorId: { type: String, default: '', index: true }, // anonymous random id from the browser
+    sessionId: { type: String, default: '', index: true },
+    human: { type: Boolean, default: false, index: true }, // true only when a real user interaction was confirmed
     revenue: { type: Number, default: 0 },
     converted: { type: Boolean, default: false },
     ip: String,
     userAgent: String
   }, { timestamps: true });
 
+  analyticsEventSchema.index({ eventType: 1, human: 1, createdAt: -1 });
+
   AnalyticsEvent = mongoose.model('AnalyticsEvent', analyticsEventSchema);
 }
+
+// If another file registered "AnalyticsEvent" first with the OLD schema, the new
+// fields would be silently dropped. This warns you at startup if that happens.
+if (!AnalyticsEvent.schema.path('human')) {
+  console.warn(
+    '⚠️  AnalyticsEvent model is missing the new fields (human, visitorId, sessionId...). ' +
+    'Another file registers this model with the old schema — update it, or remove it so this controller defines it.'
+  );
+}
+
+// ── Bot filtering + validation helpers ──
+const BOT_UA =
+  /bot|crawl|spider|slurp|headless|phantom|puppeteer|playwright|selenium|lighthouse|pagespeed|gtmetrix|pingdom|uptime|facebookexternalhit|telegrambot|curl|wget|python-requests|axios|node-fetch|go-http|okhttp\/|java\//i;
+
+const ALLOWED_EVENTS = ['pageview', 'whatsapp_click', 'call_click', 'email_click', 'lead'];
+const LEAD_EVENTS = ['whatsapp_click', 'call_click', 'email_click', 'lead'];
+
+// Your Order model has paymentStatus + orderStatus (there is no "status" field).
+// An order counts as a sale when it is paid (or delivered, for cash on delivery)
+// and is not cancelled or refunded.
+const PAID_EXPR = {
+  $and: [
+    { $ne: ['$isCancelled', true] },
+    { $ne: ['$paymentStatus', 'refunded'] },
+    { $ne: ['$orderStatus', 'cancelled'] },
+    { $or: [{ $eq: ['$paymentStatus', 'paid'] }, { $eq: ['$orderStatus', 'delivered'] }] }
+  ]
+};
+// Orders still open (not shipped yet)
+const OPEN_EXPR = { $in: ['$orderStatus', ['pending', 'confirmed', 'processing']] };
+
+const clip = (value, max, fallback = '') => (typeof value === 'string' ? value.slice(0, max) : fallback);
+
+// Tiny in-memory rate limiter: max 60 events per minute per visitor (or IP)
+const RATE_LIMIT = 60;
+const RATE_WINDOW_MS = 60 * 1000;
+const hits = new Map();
+
+const isRateLimited = (key) => {
+  const now = Date.now();
+  const entry = hits.get(key);
+  if (!entry || now - entry.start > RATE_WINDOW_MS) {
+    hits.set(key, { start: now, count: 1 });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > RATE_LIMIT;
+};
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of hits) {
+    if (now - entry.start > RATE_WINDOW_MS) hits.delete(key);
+  }
+}, RATE_WINDOW_MS).unref();
 
 // Date Filter Helper
 const getDateFilter = (timeRange) => {
@@ -77,15 +141,39 @@ const getDateFilter = (timeRange) => {
 // ═══════════════════════════════════════════════════════════════════
 export const trackEvent = async (req, res) => {
   try {
-    const { eventType = 'pageview', page = '/', source, device, referrer } = req.body;
+    const body = req.body || {};
+    const ua = req.headers['user-agent'] || '';
+    const eventType = ALLOWED_EVENTS.includes(body.eventType) ? body.eventType : null;
+    const page = clip(body.page, 200, '/') || '/';
+
+    // Silently ignore junk: unknown events, admin pages, empty or bot user-agents.
+    // Always answer 200 so bots learn nothing and the frontend never throws.
+    if (!eventType || page.startsWith('/admin') || !ua || BOT_UA.test(ua)) {
+      return res.status(200).json({ success: true });
+    }
+
+    const visitorId = clip(body.visitorId, 64);
+    const sessionId = clip(body.sessionId, 64);
+
+    if (isRateLimited(visitorId || req.ip || 'unknown')) {
+      return res.status(200).json({ success: true });
+    }
 
     await AnalyticsEvent.create({
       eventType,
       page,
-      source: source || '📱 Direct Traffic',
-      device: device || 'Desktop',
-      referrer: referrer || '',
-      userAgent: req.headers['user-agent'] || '',
+      landingPage: clip(body.landingPage, 200),
+      source: clip(body.source, 120) || '📱 Direct Traffic',
+      trafficSource: clip(body.trafficSource, 120),
+      device: ['Mobile', 'Tablet', 'Desktop'].includes(body.device) ? body.device : 'Desktop',
+      referrer: clip(body.referrer, 300),
+      leadType: eventType === 'lead' ? clip(body.leadType, 60) : '',
+      visitorId,
+      sessionId,
+      // true only when the new tracker confirmed a real user interaction.
+      // Events from the old tracker (no flag) are stored as human: false.
+      human: body.human === true && Boolean(visitorId) && Boolean(sessionId),
+      userAgent: ua.slice(0, 300),
       ip: req.ip || ''
     });
 
@@ -127,8 +215,8 @@ export const getDashboardStats = async (req, res) => {
             totalRevenue: {
               $sum: {
                 $cond: [
-                  { $in: ["$status", ["paid", "completed", "Delivered", "Paid", "delivered"]] },
-                  { $ifNull: ["$totalAmount", "$totalPrice", 0] },
+                  PAID_EXPR,
+                  { $ifNull: ['$totalAmount', 0] },
                   0
                 ]
               }
@@ -137,7 +225,7 @@ export const getDashboardStats = async (req, res) => {
             paidOrders: {
               $sum: {
                 $cond: [
-                  { $in: ["$status", ["paid", "completed", "Delivered", "Paid", "delivered"]] },
+                  PAID_EXPR,
                   1, 0
                 ]
               }
@@ -145,7 +233,7 @@ export const getDashboardStats = async (req, res) => {
             pendingOrders: {
               $sum: {
                 $cond: [
-                  { $in: ["$status", ["pending", "Processing", "Pending", "processing"]] },
+                  OPEN_EXPR,
                   1, 0
                 ]
               }
@@ -173,8 +261,8 @@ export const getDashboardStats = async (req, res) => {
             revenue: {
               $sum: {
                 $cond: [
-                  { $in: ["$status", ["paid", "completed", "Delivered", "Paid", "delivered"]] },
-                  { $ifNull: ["$totalAmount", "$totalPrice", 0] },
+                  PAID_EXPR,
+                  { $ifNull: ['$totalAmount', 0] },
                   0
                 ]
               }
@@ -184,7 +272,7 @@ export const getDashboardStats = async (req, res) => {
         { $sort: { _id: 1 } }
       ]).catch(() => []),
       Order.aggregate([
-        { $group: { _id: '$status', count: { $sum: 1 } } }
+        { $group: { _id: '$orderStatus', count: { $sum: 1 } } }
       ]).catch(() => [])
     ]);
 
@@ -198,7 +286,7 @@ export const getDashboardStats = async (req, res) => {
         text: `Order #${o._id ? o._id.toString().slice(-6).toUpperCase() : 'NEW'}`,
         amount: (o.totalAmount || o.totalPrice)
           ? `₦${Number(o.totalAmount || o.totalPrice).toLocaleString()}` : '₦0',
-        status: o.status || 'Pending',
+        status: o.orderStatus || 'pending',
         createdAt: o.createdAt || new Date()
       })),
       ...recentRepairs.map(r => ({
@@ -252,59 +340,87 @@ export const getDashboardStats = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// GET /api/analytics/seo-report (SEO & Traffic Analytics)
+// GET /api/analytics/seo-report (SEO & Traffic Analytics — HUMAN ONLY)
 // ═══════════════════════════════════════════════════════════════════
 export const getSEOReport = async (req, res) => {
   try {
     const { days = '30' } = req.query;
     const dateFilter = getDateFilter(days);
 
+    // Every traffic number below counts only confirmed-human events.
+    const humanPageviews = { ...dateFilter, human: true, eventType: 'pageview' };
+
+    const countDistinct = (field, match) =>
+      AnalyticsEvent.aggregate([
+        { $match: match },
+        { $group: { _id: `$${field}` } },
+        { $count: 'n' }
+      ]).then((r) => r[0]?.n || 0).catch(() => 0);
+
     const [
-      totalSessions,
+      totalHumanPageviews,
+      allPageviews,
+      humanSessions,
+      uniqueVisitors,
       trafficSources,
       topPages,
       whatsappLeads,
-      orderStats
+      leadSummary,
+      leadsBySource,
+      orderStats,
+      ordersBySource
     ] = await Promise.all([
-      // Total tracked visits
+      // Human pageviews
+      AnalyticsEvent.countDocuments(humanPageviews).catch(() => 0),
+
+      // Everything ever recorded as a pageview (bots + old tracker included), for comparison
       AnalyticsEvent.countDocuments({ ...dateFilter, eventType: 'pageview' }).catch(() => 0),
 
-      // Traffic breakdown
+      // Real sessions and unique visitors
+      countDistinct('sessionId', humanPageviews),
+      countDistinct('visitorId', humanPageviews),
+
+      // Traffic breakdown (visits = human pageviews)
       AnalyticsEvent.aggregate([
-        { $match: { ...dateFilter, eventType: 'pageview' } },
-        {
-          $group: {
-            _id: '$source',
-            visits: { $sum: 1 }
-          }
-        },
+        { $match: humanPageviews },
+        { $group: { _id: '$source', visits: { $sum: 1 } } },
         { $sort: { visits: -1 } }
       ]).catch(() => []),
 
       // Top pages
       AnalyticsEvent.aggregate([
-        { $match: { ...dateFilter, eventType: 'pageview' } },
-        {
-          $group: {
-            _id: '$page',
-            views: { $sum: 1 }
-          }
-        },
+        { $match: humanPageviews },
+        { $group: { _id: '$page', views: { $sum: 1 } } },
         { $sort: { views: -1 } },
         { $limit: 8 }
       ]).catch(() => []),
 
-      // WhatsApp Leads
+      // WhatsApp leads by page (unchanged shape)
       AnalyticsEvent.aggregate([
-        { $match: { ...dateFilter, eventType: 'whatsapp_click' } },
-        {
-          $group: {
-            _id: '$page',
-            leadsCount: { $sum: 1 }
-          }
-        },
+        { $match: { ...dateFilter, human: true, eventType: 'whatsapp_click' } },
+        { $group: { _id: '$page', leadsCount: { $sum: 1 } } },
         { $sort: { leadsCount: -1 } },
         { $limit: 6 }
+      ]).catch(() => []),
+
+      // All leads by type: whatsapp_click / call_click / email_click / lead
+      AnalyticsEvent.aggregate([
+        { $match: { ...dateFilter, human: true, eventType: { $in: LEAD_EVENTS } } },
+        { $group: { _id: '$eventType', count: { $sum: 1 } } },
+        { $sort: { count: -1 } }
+      ]).catch(() => []),
+
+      // Which traffic channel produced the leads
+      AnalyticsEvent.aggregate([
+        { $match: { ...dateFilter, human: true, eventType: { $in: LEAD_EVENTS } } },
+        {
+          $group: {
+            _id: { $cond: [{ $ne: ['$trafficSource', ''] }, '$trafficSource', '$source'] },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } },
+        { $limit: 8 }
       ]).catch(() => []),
 
       // Real Revenue & Conversions from Order Model
@@ -316,20 +432,33 @@ export const getSEOReport = async (req, res) => {
             totalRevenue: {
               $sum: {
                 $cond: [
-                  { $in: ["$status", ["paid", "completed", "Delivered", "Paid", "delivered"]] },
-                  { $ifNull: ["$totalAmount", "$totalPrice", 0] },
+                  PAID_EXPR,
+                  { $ifNull: ['$totalAmount', 0] },
                   0
                 ]
               }
             },
             totalConversions: {
-              $sum: {
-                $cond: [
-                  { $in: ["$status", ["paid", "completed", "Delivered", "Paid", "delivered"]] },
-                  1, 0
-                ]
-              }
+              $sum: { $cond: [PAID_EXPR, 1, 0] }
             }
+          }
+        }
+      ]).catch(() => []),
+
+      // Orders that carry a trafficSource (see note in the reply: orders must save it)
+      Order.aggregate([
+        {
+          $match: {
+            ...dateFilter,
+            $expr: PAID_EXPR,
+            trafficSource: { $exists: true, $ne: '' }
+          }
+        },
+        {
+          $group: {
+            _id: '$trafficSource',
+            conversions: { $sum: 1 },
+            revenue: { $sum: { $ifNull: ['$totalAmount', 0] } }
           }
         }
       ]).catch(() => [])
@@ -338,33 +467,51 @@ export const getSEOReport = async (req, res) => {
     const totalRevenue = orderStats[0]?.totalRevenue || 0;
     const totalConversions = orderStats[0]?.totalConversions || 0;
 
-    const conversionRate = totalSessions > 0
-      ? `${((totalConversions / totalSessions) * 100).toFixed(2)}%`
+    // Visit-to-order uses real sessions when available
+    const denominator = humanSessions || totalHumanPageviews;
+    const conversionRate = denominator > 0
+      ? `${((totalConversions / denominator) * 100).toFixed(2)}%`
       : '0.00%';
 
-    // Default channels if brand new database
-    const sourcesWithDefaults = trafficSources.length > 0 ? trafficSources.map(s => ({
-      ...s,
-      conversions: totalConversions,
-      revenue: totalRevenue
-    })) : [
-      { _id: '🔍 Google Search', visits: 0, conversions: 0, revenue: 0 },
-      { _id: '🤖 AI Search Engines', visits: 0, conversions: 0, revenue: 0 },
-      { _id: '💬 WhatsApp', visits: 0, conversions: 0, revenue: 0 },
-      { _id: '📱 Direct Traffic', visits: 0, conversions: 0, revenue: 0 },
-      { _id: '🌐 Social Media', visits: 0, conversions: 0, revenue: 0 }
-    ];
+    // Per-channel conversions/revenue only come from orders that recorded their channel.
+    // (Before, every channel showed the full store total, which was misleading.)
+    const orderSourceMap = new Map(ordersBySource.map((o) => [o._id, o]));
+
+    const sourcesWithDefaults = trafficSources.length > 0
+      ? trafficSources.map((s) => ({
+          ...s,
+          conversions: orderSourceMap.get(s._id)?.conversions || 0,
+          revenue: orderSourceMap.get(s._id)?.revenue || 0
+        }))
+      : [
+          { _id: '🔍 Google Search', visits: 0, conversions: 0, revenue: 0 },
+          { _id: '🤖 AI Search Engines', visits: 0, conversions: 0, revenue: 0 },
+          { _id: '💬 WhatsApp', visits: 0, conversions: 0, revenue: 0 },
+          { _id: '📱 Direct Traffic', visits: 0, conversions: 0, revenue: 0 },
+          { _id: '🌐 Social Media', visits: 0, conversions: 0, revenue: 0 }
+        ];
 
     return res.status(200).json({
       summary: {
-        totalSessions,
+        // Kept under the old name so the current dashboard page keeps working:
+        // this is now HUMAN pageviews only.
+        totalSessions: totalHumanPageviews,
         totalRevenue,
         totalConversions,
-        conversionRate
+        conversionRate,
+
+        // New numbers for a human-vs-total comparison
+        humanPageviews: totalHumanPageviews,
+        humanSessions,
+        uniqueVisitors,
+        allPageviews,
+        nonHumanOrLegacyPageviews: Math.max(allPageviews - totalHumanPageviews, 0)
       },
       trafficSources: sourcesWithDefaults,
       topPages,
-      whatsappLeads
+      whatsappLeads,
+      leadSummary,
+      leadsBySource
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
