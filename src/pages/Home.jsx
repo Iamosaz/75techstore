@@ -14,6 +14,7 @@ import SwapDealLog from "../components/swapdealslog/SwapDealLog";
 import AboutSection from "../components/about/AboutsSection";
 import PreFooter from "../components/prefooter/PreFooter";
 import { FiTool } from "react-icons/fi";
+import FAQ from "../components/FAQ";
 
 const quickServices = [
   { icon: <FaLaptop size={22} />, label: "Buy Gadgets", path: "/shop" },
@@ -67,6 +68,7 @@ const Home = () => {
       <TopProduct />
       <SwapDealLog />
       <LogoBrand />
+      <FAQ />
       <PreFooter />
 
     </main>
