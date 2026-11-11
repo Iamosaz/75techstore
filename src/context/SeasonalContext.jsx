@@ -1,5 +1,12 @@
 // src/context/SeasonalContext.jsx
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { detectCountry } from "../utils/countryDetector";
 import { detectCurrentEvent } from "../utils/HolidayDetector";
 
@@ -8,7 +15,9 @@ const SeasonalContext = createContext();
 export function useSeasonalTheme() {
   const context = useContext(SeasonalContext);
   if (!context) {
-    throw new Error("useSeasonalTheme must be used within a SeasonalProvider");
+    throw new Error(
+      "useSeasonalTheme must be used within a SeasonalProvider"
+    );
   }
   return context;
 }
@@ -43,7 +52,10 @@ export function SeasonalProvider({ children }) {
       const res = await fetch("/api/seasonal/override");
       if (res.ok) {
         const data = await res.json();
-        if (data.override && new Date(data.override.expiresAt) > new Date()) {
+        if (
+          data.override &&
+          new Date(data.override.expiresAt) > new Date()
+        ) {
           setOverride(data.override);
           localStorage.setItem(
             "75tech_seasonal_override",
@@ -63,11 +75,11 @@ export function SeasonalProvider({ children }) {
 
     async function initializeSystem() {
       try {
-        // Fetch admin overrides first
         await fetchActiveOverride();
 
-        // Read manual country override from localStorage if set by admin
-        const savedCountryOverride = localStorage.getItem("75tech_country_override");
+        const savedCountryOverride = localStorage.getItem(
+          "75tech_country_override"
+        );
         let detectedCountry;
 
         if (savedCountryOverride) {
@@ -78,7 +90,6 @@ export function SeasonalProvider({ children }) {
 
         setCountry(detectedCountry);
 
-        // Fetch real-time holiday for the detected/overridden country
         const detectedEvent = await detectCurrentEvent(detectedCountry);
         setEvent(detectedEvent);
       } catch (err) {
@@ -92,7 +103,6 @@ export function SeasonalProvider({ children }) {
 
     initializeSystem();
 
-    // Poll backend every 30 seconds for real-time cloud updates
     const pollInterval = setInterval(fetchActiveOverride, 30000);
     return () => clearInterval(pollInterval);
   }, [fetchActiveOverride]);
@@ -106,7 +116,6 @@ export function SeasonalProvider({ children }) {
         JSON.stringify(overrideData)
       );
 
-      // Attempt background cloud push to MongoDB
       fetch("/api/seasonal/override", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,7 +136,6 @@ export function SeasonalProvider({ children }) {
       localStorage.removeItem("75tech_seasonal_override");
       localStorage.removeItem("75tech_country_override");
 
-      // Notify backend to deactivate override
       fetch("/api/seasonal/override", { method: "DELETE" }).catch(() => {});
       return true;
     } catch (err) {
@@ -136,7 +144,7 @@ export function SeasonalProvider({ children }) {
     }
   }, []);
 
-  // 6. Country Simulator — persists across entire site via localStorage
+  // 6. Country Simulator
   const setCountryOverride = useCallback(async (code) => {
     setLoading(true);
     try {
@@ -162,6 +170,7 @@ export function SeasonalProvider({ children }) {
         customTitle: override.customTitle,
         customSubtitle: override.customSubtitle,
         customDiscount: override.customDiscount,
+        showBadge: override.showBadge ?? false,   // ← NEW: badge toggle
         customImage: override.customImage,
         country,
       }
