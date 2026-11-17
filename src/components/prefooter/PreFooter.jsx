@@ -80,7 +80,7 @@ const PreFooter = () => {
   }
 
   /* ──────────────────────────────────────────────────────
-     FOOTER LINKS — Including Terms & Conditions / Privacy
+     FOOTER LINKS — Updated for Paystack Compliance
   ────────────────────────────────────────────────────── */
   const columns = [
     {
@@ -123,16 +123,16 @@ const PreFooter = () => {
       ],
     },
     {
-      title: 'Support',
+      title: 'Support & Policies',
       accent: 'bg-purple-500',
       hover: 'hover:text-purple-400',
       bar: 'bg-purple-400',
       links: [
-        { label: 'Track Order',         to: '/track-order' },
-        { label: 'Cart',                to: '/cart' },
-        { label: 'VIP Membership',      to: '/membership-plan' },
-        { label: 'User Login',          to: '/login' },
-        { label: 'Create Account',      to: '/signup' },
+        { label: 'Track Order',           to: '/track-order' },
+        { label: 'Refund & Returns',      to: '/refund-policy' },   // 👈 Paystack Requirement
+        { label: 'Delivery Timelines',    to: '/delivery-policy' }, // 👈 Paystack Requirement
+        { label: 'VIP Membership',        to: '/membership-plan' },
+        { label: 'Cart',                  to: '/cart' },
       ],
     },
   ]
@@ -386,13 +386,21 @@ const PreFooter = () => {
         {/* ── BOTTOM LEGAL & COPYRIGHT BAR ── */}
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
           <p>© {new Date().getFullYear()} 75TechStore Limited. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
             <Link to="/terms" className="hover:text-white transition">
-              Terms & Conditions
+              Terms &amp; Conditions
             </Link>
             <span>•</span>
             <Link to="/privacy" className="hover:text-white transition">
               Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link to="/refund-policy" className="hover:text-white transition">
+              Refund &amp; Returns
+            </Link>
+            <span>•</span>
+            <Link to="/delivery-policy" className="hover:text-white transition">
+              Delivery Timelines
             </Link>
           </div>
         </div>

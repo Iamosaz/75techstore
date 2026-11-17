@@ -61,6 +61,8 @@ import { AdminProvider } from "./admin/context/AdminContext";
 import { UserProvider } from "./context/UserContext";
 import { CartProvider } from "./context/CartContext";
 import { SeasonalProvider } from "./context/SeasonalContext";
+import DeliveryPolicy from "./admin/pages/DeliveryPolicy";
+import RefundPolicy from "./admin/pages/RefundPolicy";
 
 function AppContent() {
   const location = useLocation();
@@ -102,6 +104,8 @@ function AppContent() {
           <Route path="/category2/:id" element={<Category2 />} />
           <Route path="/ourproducts/:id" element={<OurProducts />} />
           <Route path="/prefooter/:id" element={<PreFooter />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/delivery-policy" element={<DeliveryPolicy />} />
 
           {/* ── Services ── */}
           <Route path="/services" element={<ServicesPage />} />
