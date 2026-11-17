@@ -15,6 +15,7 @@ import AboutSection from "../components/about/AboutsSection";
 import PreFooter from "../components/prefooter/PreFooter";
 import { FiTool } from "react-icons/fi";
 import FAQ from "../components/FAQ";
+import GoogleReviews from "../components/GoogleReviews";
 
 const quickServices = [
   { icon: <FaLaptop size={22} />, label: "Buy Gadgets", path: "/shop" },
@@ -69,6 +70,7 @@ const Home = () => {
       <SwapDealLog />
       <LogoBrand />
       <FAQ />
+      <GoogleReviews />
       <PreFooter />
 
     </main>
