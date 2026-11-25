@@ -8,7 +8,15 @@ import {
 } from 'react-icons/fi'
 import axios from 'axios'
 
-const API_URL = 'http://localhost:5000/api'
+// ── Same API URL logic as AdminContext (reads VITE_API_URL on live) ──
+const getCleanApiUrl = () => {
+  const rawUrl = import.meta.env?.VITE_API_URL || 'http://localhost:5000/api'
+  let clean = rawUrl.trim().replace(/\/+$/, '')
+  if (!clean.endsWith('/api')) clean = `${clean}/api`
+  return clean
+}
+
+const API_URL = getCleanApiUrl()
 
 const tierConfig = {
   'silver':   { bg: 'bg-slate-100',   text: 'text-slate-700',   border: 'border-slate-300', gradient: 'from-slate-400 to-slate-500' },
