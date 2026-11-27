@@ -65,7 +65,7 @@ const Home = () => {
       <Services />
       <OurProducts />
       <TechCard75 />
-      <AboutSection />
+      <AboutSection />s
       <TopProduct />
       <SwapDealLog />
       <LogoBrand />

@@ -43,6 +43,7 @@ import dashboardRoutes      from './routes/dashboardRoutes.js';
 import settingsRoutes       from './routes/settingsRoutes.js';
 import engineerRoutes       from './routes/engineerRoutes.js';
 import repairRoutes         from './routes/repairRoutes.js';
+// import reviewsRoutes        from './routes/reviewsRoutes.js';   
 import digitalServiceRoutes from './routes/digitalServiceRoutes.js';
 import swapRoutes           from './routes/swapRoutes.js';
 import seasonalProductsRoutes from "./routes/seasonalProducts.js";
@@ -195,6 +196,7 @@ app.use('/api/dashboard', secureAdminRateLimit, dashboardRoutes);
 app.use('/api/settings', secureAdminRateLimit, settingsRoutes);
 app.use('/api/engineer', engineerRoutes);
 app.use('/api/repairs', repairRoutes);
+// app.use('/api/reviews', reviewsRoutes);   
 app.use('/api/digital', digitalServiceRoutes);
 app.use('/api/swap', swapRoutes);
 app.use('/api/membership', membershipRoutes);
@@ -204,6 +206,7 @@ app.use('/api/seasonal', seasonal);
 app.use("/api/seasonal-products", seasonalProductsRoutes);
 app.use("/api/indexing", indexingRoutes);
 app.use('/api/seo', seoRoutes);
+
 
 // Health Check
 app.get("/api/health", (req, res) => {
