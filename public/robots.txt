@@ -99,7 +99,11 @@ Disallow: /
 User-agent: BLEXBot
 Disallow: /
 
-# Sitemaps
-Sitemap: https://www.75techstore.com.ng/sitemap.xml
-Sitemap: https://www.75techstore.com.ng/sitemap-products.xml
-Sitemap: https://www.75techstore.com.ng/sitemap-blog.xml
+
+
+
+# https://75techstore.com.ng/robots.txt
+
+Sitemap: https://75techstore.com.ng/sitemap.xml
+Sitemap: https://75techstore.com.ng/sitemap-products.xml
+Sitemap: https://75techstore.com.ng/sitemap-blog.xmls
