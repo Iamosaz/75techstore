@@ -16,7 +16,7 @@ export const services = [
     detail: 'React sites, web & mobile apps',
     image: '/images/services/web-app-dev.svg',
     badge: 'CORE',
-    href: '/services/web-app-development',
+     href: '/services',
   },
   {
     id: 'ecommerce',
@@ -24,7 +24,7 @@ export const services = [
     detail: 'Online stores that actually sell',
     image: '/images/services/ecommerce.svg',
     badge: 'POPULAR',
-    href: '/services/ecommerce',
+    href: '/services',
   },
   {
     id: 'uiux',
@@ -32,7 +32,7 @@ export const services = [
     detail: 'Logos, branding & clean interfaces',
     image: '/images/services/uiux.svg',
     badge: 'DESIGN',
-    href: '/services/ui-ux-design',
+     href: '/services',
   },
   {
     id: 'ai',
@@ -40,7 +40,7 @@ export const services = [
     detail: 'AI features, chatbots & automation',
     image: '/images/services/ai.svg',
     badge: 'AI',
-    href: '/services/ai',
+     href: '/services',
   },
   {
     id: 'gadgets',
@@ -48,7 +48,7 @@ export const services = [
     detail: 'Brand-new & UK-used devices',
     image: '/images/services/gadgets.svg',
     badge: 'SALE',
-    href: '/services/gadget-sales',
+     href: '/services',
   },
   {
     id: 'repairs',
@@ -56,23 +56,16 @@ export const services = [
     detail: 'Phones, laptops & consoles',
     image: '/images/services/repairs.svg',
     badge: 'FAST',
-    href: '/services/repairs',
+    href: '/services',
   },
-  // {
-  //   id: 'consulting',
-  //   title: 'IT Consulting',
-  //   detail: 'Strategy, setup & tech guidance',
-  //   image: '/images/services/it-consulting.svg',
-  //   badge: 'ADVICE',
-  //   href: '/services/consulting',
-  // },
+  
   {
     id: 'delivery',
     title: 'Nationwide Delivery',
     detail: 'Across Lagos & all of Nigeria',
     image: '/images/services/delivery.svg',
     badge: 'NG',
-    href: '/services/nationwide-delivery',
+     href: '/services',
   },
 ];
 

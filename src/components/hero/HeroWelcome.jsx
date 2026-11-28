@@ -71,7 +71,8 @@ const HeroWelcome = ({ services: servicesProp }) => {
           </a>
         </motion.div>
 
-        {/* Services as glassy pills (dynamic from data) */}
+        {/* Services as glassy pills (dynamic from data)
+            On mobile (below sm) only the first 3 show; the rest appear from sm+ upward. */}
         <motion.div
           className="mt-8 sm:mt-10 w-full flex flex-wrap items-center justify-center
                      gap-2.5 sm:gap-3"
@@ -82,7 +83,7 @@ const HeroWelcome = ({ services: servicesProp }) => {
             show: { transition: { staggerChildren: 0.08, delayChildren: 1 } },
           }}
         >
-          {services.map((service) => (
+          {services.map((service, index) => (
             <motion.a
               key={service.id}
               href={service.href || "#"}
@@ -91,9 +92,10 @@ const HeroWelcome = ({ services: servicesProp }) => {
                 show: { opacity: 1, y: 0 },
               }}
               whileHover={{ scale: 1.06, backgroundColor: "rgba(255,255,255,0.18)" }}
-              className="flex items-center gap-2 rounded-full border border-white/20
+              className={`flex items-center gap-2 rounded-full border border-white/20
                          bg-white/10 backdrop-blur-sm px-3.5 py-2
-                         transition-colors duration-200"
+                         transition-colors duration-200
+                         ${index >= 3 ? "hidden sm:flex" : ""}`}
             >
               <img
                 src={service.image}
