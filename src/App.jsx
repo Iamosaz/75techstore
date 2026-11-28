@@ -13,9 +13,10 @@ import CustomChatbot from "./components/chatbot/CustomChatbot";
 import ScrollToTop from "./ScrollToTop";
 import ExitIntentPopup from "./ExitIntentPopup";
 import SEOTracker from "./SEOTracker";
+import SEO from "./components/SEO"; // NEW
 
 // Public Pages
-import Home from "./pages/Home";   
+import Home from "./pages/Home";
 import DealDetails from "./pages/DealDetails";
 import Category from "./components/category/Category";
 import Category2 from "./components/category/Category2";
@@ -37,6 +38,7 @@ import ServicesPage from "./pages/ServicesPage";
 import SwapDeals from "./pages/SwapDeals";
 import SeasonalShop from "./pages/SeasonalShop";
 import MarketplaceHome from "./pages/marketplace/MarketplaceHome";
+import NotFound from "./pages/NotFound"; // NEW
 
 // Legal & Policy Pages
 import TermsAndConditions from "./pages/TermsAndConditions";
@@ -64,14 +66,60 @@ import { SeasonalProvider } from "./context/SeasonalContext";
 import DeliveryPolicy from "./admin/pages/DeliveryPolicy";
 import RefundPolicy from "./admin/pages/RefundPolicy";
 
+/* ── NEW: SEO rules for duplicate and private pages ──────────────────
+   Some pages are reachable at two addresses. The canonical tag tells
+   Google which one is the real one. Left side = the duplicate address,
+   right side = the address Google should keep.
+   ─────────────────────────────────────────────────────────────────── */
+const CANONICAL_MAP = {
+  "/terms": "/terms-and-conditions",
+  "/privacy": "/privacy-policy",
+  "/seasonal-deals": "/deals",
+  "/membership-benefits": "/membership",
+  "/membership-verify": "/membership/verify",
+};
+
+// Pages that should never appear in search results
+const NOINDEX_PREFIXES = [
+  "/admin",
+  "/login",
+  "/signup",
+  "/cart",
+  "/checkout",
+  "/order-success",
+  "/track-order",
+  "/membership/verify",
+  "/membership-verify",
+];
+
+function getSeoRules(pathname) {
+  let path = pathname.replace(/\/+$/, "") || "/";
+
+  // /product/:id is a duplicate of /shop/:id
+  if (path.startsWith("/product/")) {
+    path = "/shop/" + path.slice("/product/".length);
+  }
+  if (CANONICAL_MAP[path]) path = CANONICAL_MAP[path];
+
+  const noindex = NOINDEX_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+  return { canonicalPath: path, noindex };
+}
+
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const { canonicalPath, noindex } = getSeoRules(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
+      {/* NEW: default SEO for every page. A page with its own <SEO> overrides it. */}
+      <SEO url={canonicalPath} noindex={noindex} />
+
       {/* 🚀 SEO & Traffic Auto Tracker */}
       <SEOTracker />
+      <SEO />
 
       {/* Show Navbar on customer-facing routes */}
       {!isAdminRoute && <Navbar />}
@@ -139,8 +187,9 @@ function AppContent() {
           {/* ── Admin Dashboard ── */}
           <Route path="/admin/*" element={<AdminRoutes />} />
 
-          {/* ── Fallback Catch-All (Prevents White Screens) ── */}
-          <Route path="*" element={<Home />} />
+          {/* ── CHANGED: unknown addresses now show a real Not Found page
+                 (before, they showed the homepage) ── */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
