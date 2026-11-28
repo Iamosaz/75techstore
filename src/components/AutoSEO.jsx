@@ -1,6 +1,6 @@
 // src/components/AutoSEO.jsx
 import React from "react";
-import SEO from "../SEO";
+import SEO from "./SEO";
 import { useProductSEO, useBlogSEO } from "../hooks/useAutoSEO";
 
 export function ProductAutoSEO({ product }) {

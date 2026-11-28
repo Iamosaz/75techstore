@@ -6,7 +6,7 @@ import {
   FiSearch, FiClock, FiUser, FiCalendar, 
   FiArrowRight, FiInbox, FiRotateCw, FiAward 
 } from 'react-icons/fi';
-import SEO from '../SEO';
+import SEO from '../components/SEO';
 
 // ── 🛡️ PRODUCTION TRAILING SLASH SAFEGUARD ──
 const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';

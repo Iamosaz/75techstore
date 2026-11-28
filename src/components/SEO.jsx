@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
 
 /* ─────────────────────────────────────────────────────────────
    SITE CONSTANTS — edit here, nowhere else.
@@ -6,13 +7,19 @@ import { Helmet } from 'react-helmet-async';
    actually see on the site (phone, hours, returns, delivery).
    ───────────────────────────────────────────────────────────── */
 const SITE_NAME = '75TechStore';
-const LEGAL_NAME = 'Seven Five Techstore Limited'; // footer says "75TechStore Limited" — use your exact CAC name
-const SITE_URL = 'https://www.75techstore.com.ng';
-const LOGO = `${SITE_URL}/brand-icon.png`; // exists in /public
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`; // exists in /public (keep it 1200x630)
-const PHONE = '+234-703-562-0709'; // matches the footer
+const LEGAL_NAME = 'Seven Five Techstore Limited';
+const SITE_URL = 'https://75techstore.com.ng'; // CHANGED: non-www is the main address now
+const LOGO = `${SITE_URL}/brand-icon.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`; // CONFIRM: file exists in /public (1200x630)
+const PHONE = '+234-703-562-0709';
 const EMAIL = '75techstore@gmail.com';
-const RETURN_DAYS = 30; // site says "30 days money back guarantee"
+const RETURN_DAYS = 30; // CONFIRM: site says "30 days money back guarantee"
+
+const FOUNDING_YEAR = '2020'; // CONFIRM: About page says 2019, this says 2020. Pick one.
+const POSTAL_CODE = '100272'; // CONFIRM: About page says 100102, this says 100272. Pick one.
+const FOUNDER_NAME = 'Kenneth Osazuwa'; // CONFIRM: set to '' to hide the founder everywhere
+const OFFERS_FREE_DELIVERY = false; // CONFIRM: set true ONLY if delivery really is free
+const HAS_SITE_SEARCH = false; // CONFIRM: set true ONLY if /shop?search=term really filters products
 
 const DEFAULT_TITLE = `${SITE_NAME} | Buy Phones, Laptops & Gadgets in Lagos`;
 const DEFAULT_DESCRIPTION =
@@ -23,7 +30,7 @@ const ADDRESS = {
   streetAddress: 'M Plaza, Adepele Street, Computer Village',
   addressLocality: 'Ikeja',
   addressRegion: 'Lagos',
-  postalCode: '100272',
+  postalCode: POSTAL_CODE,
   addressCountry: 'NG',
 };
 
@@ -38,7 +45,7 @@ const HOURS = [
   },
 ];
 
-// Keep only profiles that really exist and are active.
+// CONFIRM: keep only profiles that really exist and are active.
 const SAME_AS = [
   'https://www.instagram.com/75techstore',
   'https://www.facebook.com/75techstore',
@@ -75,13 +82,13 @@ const SEO = ({
   description,
   keywords, // optional — Google ignores it, so it is only emitted when you pass it
   image,
-  url,
+  url, // optional now: defaults to the current page's path
   type = 'website', // 'website' | 'article' | 'service' (product is inferred from price)
   price,
   currency = 'NGN',
   brand,
   category,
-  inStock = true, // previously undefined meant "Out of stock" in the schema
+  inStock = true,
   sku,
   gtin,
   condition = 'NewCondition',
@@ -98,16 +105,21 @@ const SEO = ({
   noindex = false, // use on cart, checkout, login, messages, dashboards
   hreflang = [],
 }) => {
+  // CHANGED: a page that forgets the `url` prop now gets its OWN address as
+  // canonical, instead of the homepage.
+  const { pathname } = useLocation();
+
   const isProduct = Boolean(price);
   const isArticle = type === 'article';
   const isService = type === 'service';
+  const authorName = author || FOUNDER_NAME || SITE_NAME;
 
   const fullTitle = clip(
     title ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`) : DEFAULT_TITLE,
     70
   );
   const fullDescription = clip(description || DEFAULT_DESCRIPTION, 160);
-  const fullUrl = `${SITE_URL}${cleanPath(url)}`;
+  const fullUrl = `${SITE_URL}${cleanPath(url ?? pathname)}`; // CHANGED
   const images = (Array.isArray(image) ? image : [image]).map(abs).filter(Boolean);
   const mainImage = images[0] || DEFAULT_IMAGE;
   const imageList = images.length ? images : [DEFAULT_IMAGE];
@@ -126,13 +138,15 @@ const SEO = ({
     '@id': orgId,
     name: SITE_NAME,
     legalName: LEGAL_NAME,
-    alternateName: ['75 Tech Store', '75Tech', 'Seven Five Techstore'],
+    alternateName: ['75TechStore Limited', '75 Tech Store', 'Seven Five Techstore'],
     url: SITE_URL,
     logo: { '@type': 'ImageObject', url: LOGO },
     image: DEFAULT_IMAGE,
     description: DEFAULT_DESCRIPTION,
-    foundingDate: '2020',
-    founder: { '@type': 'Person', name: 'Kenneth Osazuwa', jobTitle: 'Software Engineer & Founder' },
+    foundingDate: FOUNDING_YEAR, // CHANGED: now a constant at the top
+    founder: FOUNDER_NAME
+      ? { '@type': 'Person', name: FOUNDER_NAME, jobTitle: 'Software Engineer & Founder' }
+      : undefined,
     identifier: { '@type': 'PropertyValue', name: 'CAC RC Number', value: '8681711' },
     telephone: PHONE,
     email: EMAIL,
@@ -206,12 +220,14 @@ const SEO = ({
     alternateName: '75TechStore Nigeria',
     url: SITE_URL,
     publisher: { '@id': orgId },
-    // Make sure /shop?search=term really filters products, or delete this block.
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/shop?search={search_term_string}` },
-      'query-input': 'required name=search_term_string',
-    },
+    // CHANGED: only included when HAS_SITE_SEARCH is true
+    potentialAction: HAS_SITE_SEARCH
+      ? {
+          '@type': 'SearchAction',
+          target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/shop?search={search_term_string}` },
+          'query-input': 'required name=search_term_string',
+        }
+      : undefined,
   };
 
   const product = isProduct
@@ -235,16 +251,19 @@ const SEO = ({
           availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
           itemCondition: `https://schema.org/${condition}`,
           seller: { '@id': orgId },
-          shippingDetails: {
-            '@type': 'OfferShippingDetails',
-            shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'NGN' },
-            shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'NG' },
-            deliveryTime: {
-              '@type': 'ShippingDeliveryTime',
-              handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-              transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
-            },
-          },
+          // CHANGED: only included when OFFERS_FREE_DELIVERY is true
+          shippingDetails: OFFERS_FREE_DELIVERY
+            ? {
+                '@type': 'OfferShippingDetails',
+                shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'NGN' },
+                shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'NG' },
+                deliveryTime: {
+                  '@type': 'ShippingDeliveryTime',
+                  handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+                  transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
+                },
+              }
+            : undefined,
           hasMerchantReturnPolicy: {
             '@type': 'MerchantReturnPolicy',
             applicableCountry: 'NG',
@@ -273,7 +292,7 @@ const SEO = ({
         headline: clip(title, 110),
         description: fullDescription,
         image: imageList,
-        author: { '@type': 'Person', name: author || 'Kenneth Osazuwa', url: `${SITE_URL}/about` },
+        author: { '@type': 'Person', name: authorName, url: `${SITE_URL}/about` },
         publisher: { '@id': orgId },
         datePublished: publishedTime,
         dateModified: modifiedTime || publishedTime,
@@ -306,8 +325,6 @@ const SEO = ({
       }
     : null;
 
-  // Google no longer shows HowTo rich results; kept because it is harmless and
-  // still readable by other search/answer engines.
   const howTo = howToSteps.length
     ? {
         '@type': 'HowTo',
@@ -349,14 +366,14 @@ const SEO = ({
       {keywords && <meta name="keywords" content={keywords} />}
       <link rel="canonical" href={fullUrl} />
       <meta name="robots" content={robots} />
-      <meta name="author" content={author || 'Kenneth Osazuwa'} />
+      <meta name="author" content={authorName} />
       <meta name="copyright" content={`${LEGAL_NAME} (${SITE_NAME})`} />
       <meta name="theme-color" content="#000000" />
       <meta name="format-detection" content="telephone=yes" />
       <meta name="geo.region" content="NG-LA" />
       <meta name="geo.placename" content="Computer Village, Ikeja, Lagos" />
 
-      {/* ── Icons (files that exist in /public) ── */}
+      {/* ── Icons ── */}
       <link rel="icon" type="image/png" href={LOGO} />
       <link rel="apple-touch-icon" href={LOGO} />
 
@@ -377,7 +394,7 @@ const SEO = ({
 
       {isArticle && publishedTime && <meta property="article:published_time" content={publishedTime} />}
       {isArticle && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-      {isArticle && author && <meta property="article:author" content={author} />}
+      {isArticle && <meta property="article:author" content={authorName} />}
       {isArticle && articleSection && <meta property="article:section" content={articleSection} />}
       {isArticle && articleTags.map((tag) => <meta key={tag} property="article:tag" content={tag} />)}
 
