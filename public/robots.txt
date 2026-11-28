@@ -1,5 +1,5 @@
 # 75TechStore - robots.txt
-# https://www.75techstore.com.ng/robots.txt
+# https://75techstore.com.ng/robots.txt
 # Seven Five Techstore Limited | RC: 8681711
 
 User-agent: *
@@ -106,4 +106,4 @@ Disallow: /
 
 Sitemap: https://75techstore.com.ng/sitemap.xml
 Sitemap: https://75techstore.com.ng/sitemap-products.xml
-Sitemap: https://75techstore.com.ng/sitemap-blog.xmls
+Sitemap: https://75techstore.com.ng/sitemap-blog.xml
